@@ -31,14 +31,27 @@ namespace jm { namespace detail {
     }
 
     template<class TraitsType>
-    class default_storage
-    {
+    class default_rm_storage {
         typename TraitsType::address_type _base_address;
-    public:
-        const AddressType& base_address() const noexcept { return _base_address; }
-        AddressType& base_address() noexcept { return _base_address; }
+        void*                             _handle;
 
-        void* handle() const noexcept {}
+    public:
+        const typename TraitsType::address_type& base_address() const noexcept { return _base_address; }
+
+        typename TraitsType::address_type& base_address() noexcept { return _base_address; }
+
+        void* handle() const noexcept { return _handle.native(); }
+    };
+
+    template<class TraitsType>
+    class baseless_rm_storage {
+        void* _handle;
+
+    protected:
+        typename TraitsType::address_type base_address() const noexcept { return 0; }
+
+    public:
+        void* handle() const noexcept { return _handle; }
     };
 
     template<template<class> class Storage>
@@ -46,7 +59,15 @@ namespace jm { namespace detail {
         using address_type = std::uintptr_t;
         using size_type    = SIZE_T_;
 
+        template<typename... Args>
+        basic_memory_traits(Args&&... args)
+                : Storage(std::forward<Args>(args)...) {}
+
+        // TODO add all operators
+
     protected:
+        ~basic_memory_traits() noexcept = default;
+
         template<typename T>
         void read(address_type address, T* buffer, size_type size)
         {
@@ -69,5 +90,8 @@ namespace jm { namespace detail {
                 throw_last_error("WriteProcessMemory() failed");
         }
     };
+
+    using memory_traits       = basic_memory_traits<default_rm_storage>;
+    using small_memory_traits = basic_memory_traits<baseless_rm_storage>;
 
 }}
