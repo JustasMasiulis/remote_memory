@@ -11,14 +11,24 @@
     #error "unknown platform"
 #endif
 
-namespace jm {
+namespace remote {
 
-    template<class MemoryTraits>
-    struct basic_remote_memory : public MemoryTraits {
+    template<class OperationsPolicy>
+    struct basic_memory : public OperationsPolicy {
         /// \brief The type to be used for integral representation of address.
-        using address_type = typename MemoryTraits::address_type;
+        using address_type = typename OperationsPolicy::address_type;
         /// \brief The type to be used for size.
-        using size_type    = typename MemoryTraits::size_type;
+        using size_type    = typename OperationsPolicy::size_type;
+
+        template<class... Args>
+        basic_memory(Args&&... args)
+            : OperationsPolicy(std::forward<Args>(args)...) {};
+
+        basic_memory(const basic_memory&) = default;
+        basic_memory& operator=(const basic_memory&) = default;
+
+        basic_memory(basic_memory&&) = default;
+        basic_memory& operator=(basic_memory&&) = default;
 
         /// \brief Reads the memory at range [address; address + size] into given buffer.
         /// \param address The address in the target process to read from.
@@ -27,12 +37,12 @@ namespace jm {
         template<class T, class Address>
         void read(Address address, T* buffer, size_type size) const
         {
-            MemoryTraits::read(detail::pointer_cast<address_type>(address), buffer, size);
+            OperationsPolicy::read(jm::detail::pointer_cast<address_type>(address), buffer, size);
         }
         template<class T, class Address>
         void read(Address address, T* buffer, size_type size, std::error_code& ec) const noexcept
         {
-            MemoryTraits::read(detail::pointer_cast<address_type>(address), buffer, size, ec);
+            OperationsPolicy::read(jm::detail::pointer_cast<address_type>(address), buffer, size, ec);
         }
 
         /// \brief Reads the memory at range [address; address + sizeof(T)] into given buffer.
@@ -42,12 +52,12 @@ namespace jm {
         template<class T, class Address>
         void read(Address address, T& buffer) const
         {
-            MemoryTraits::read(detail::pointer_cast<address_type>(address), ::std::addressof(buffer), sizeof(T));
+            OperationsPolicy::read(jm::detail::pointer_cast<address_type>(address), ::std::addressof(buffer), sizeof(T));
         }
         template<class T, class Address>
         void read(Address address, T& buffer, std::error_code& ec) const noexcept
         {
-            MemoryTraits::read(detail::pointer_cast<address_type>(address), ::std::addressof(buffer), sizeof(T), ec);
+            OperationsPolicy::read(jm::detail::pointer_cast<address_type>(address), ::std::addressof(buffer), sizeof(T), ec);
         }
 
         /// \brief Reads the memory at range [address; address + sizeof(T)] and returns it as requested type.
@@ -57,14 +67,14 @@ namespace jm {
         T read(Address address) const
         {
             typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type _storage;
-            MemoryTraits::read(detail::pointer_cast<address_type>(address), &_storage, sizeof(T));
+            OperationsPolicy::read(jm::detail::pointer_cast<address_type>(address), &_storage, sizeof(T));
             return *static_cast<T*>(static_cast<void*>(&_storage));
         }
         template<class T, class Address>
         T read(Address address, std::error_code& ec) const noexcept
         {
             typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type _storage;
-            MemoryTraits::read(detail::pointer_cast<address_type>(address), &_storage, sizeof(T), ec);
+            OperationsPolicy::read(jm::detail::pointer_cast<address_type>(address), &_storage, sizeof(T), ec);
             return *static_cast<T*>(static_cast<void*>(&_storage));
         }
 
@@ -75,12 +85,12 @@ namespace jm {
         template<class T, class Address>
         void write(Address address, const T* buffer, std::size_t size) const
         {
-            MemoryTraits::write(detail::pointer_cast<address_type>(address), buffer, size);
+            OperationsPolicy::write(jm::detail::pointer_cast<address_type>(address), buffer, size);
         }
         template<class T, class Address>
         void write(Address address, const T* buffer, std::size_t size, std::error_code& ec) const noexcept
         {
-            MemoryTraits::write(detail::pointer_cast<address_type>(address), buffer, size, ec);
+            OperationsPolicy::write(jm::detail::pointer_cast<address_type>(address), buffer, size, ec);
         }
 
         /// \brief Overwrites the memory at range [address; address + sizeof(T)] with the contents of buffer.
@@ -90,17 +100,17 @@ namespace jm {
         template<class T, class Address>
         void write(Address address, const T& buffer) const
         {
-            MemoryTraits::write(detail::pointer_cast<address_type>(address), std::addressof(buffer), sizeof(T));
+            OperationsPolicy::write(jm::detail::pointer_cast<address_type>(address), std::addressof(buffer), sizeof(T));
         }
         template<class T, class Address>
         void write(Address address, const T& buffer, std::error_code& ec) const noexcept
         {
-            MemoryTraits::write(detail::pointer_cast<address_type>(address), std::addressof(buffer), sizeof(T), ec);
+            OperationsPolicy::write(jm::detail::pointer_cast<address_type>(address), std::addressof(buffer), sizeof(T), ec);
         }
-
     };
 
-    using remote_memory = basic_remote_memory<detail::memory_traits>;
+    using based_memory = basic_memory<detail::memory_traits>;
+    using memory       = basic_memory<detail::baseless_memory_traits>;
 
 }
 

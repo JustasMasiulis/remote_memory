@@ -14,12 +14,12 @@
 * limitations under the License.
 */
 
-#ifndef JM_REMOTE_MEMORY_WINDOWS_HPP
-#define JM_REMOTE_MEMORY_WINDOWS_HPP
+#ifndef REMOTE_MEMORY_WINDOWS_HPP
+#define REMOTE_MEMORY_WINDOWS_HPP
 
-#include <cstdint>
+#include <system_error>
 
-namespace jm { namespace detail {
+namespace remote { namespace detail {
 
 #ifdef _WIN64
     #if defined(__CYGWIN__)
@@ -51,8 +51,8 @@ namespace jm { namespace detail {
 
     template<class AddressType, class SizeType>
     class default_rm_storage {
-        void*       _handle;
         AddressType _base_address;
+        void*       _handle;
 
     public:
         const AddressType& base_address() const noexcept { return _base_address; }
@@ -85,7 +85,6 @@ namespace jm { namespace detail {
         basic_memory_traits(Args&& ... args)
                 : my_base(std::forward<Args>(args)...) {}
 
-        // TODO add all operators
 
     protected:
         ~basic_memory_traits() noexcept = default;
@@ -134,7 +133,7 @@ namespace jm { namespace detail {
     };
 
     using memory_traits       = basic_memory_traits<default_rm_storage>;
-    using small_memory_traits = basic_memory_traits<baseless_rm_storage>;
+    using baseless_memory_traits = basic_memory_traits<baseless_rm_storage>;
 
 }}
 

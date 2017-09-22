@@ -5,7 +5,7 @@ set (CATCH_INCLUDE_PATH "${CATCH_MODULE_PATH}/include")
 include ("${CATCH_MODULE_PATH}/contrib/ParseAndAddCatchTests.cmake")
 
 #configure variables
-set (TEST_APP_NAME "memory_signature_test")
+set (TEST_APP_NAME "remote_memory_test")
 
 #configure directories
 set (TEST_MODULE_PATH "${PROJECT_SOURCE_DIR}/test")

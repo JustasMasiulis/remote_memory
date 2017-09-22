@@ -3,5 +3,5 @@
 
 TEST_CASE("main")
 {
-    jm::remote_memory mem;
+    remote::memory mem;
 }
