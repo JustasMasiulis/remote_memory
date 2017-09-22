@@ -17,13 +17,10 @@
 #ifndef JM_REMOTE_MEMORY_UTILS_HPP
 #define JM_REMOTE_MEMORY_UTILS_HPP
 
-#include "config.hpp"
-
 #include <stdexcept>
 #include <limits>
 
-
-namespace spm { namespace detail {
+namespace jm { namespace detail {
 
     template<std::size_t S>
     struct uintptr_adaptive;

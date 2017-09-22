@@ -2,10 +2,10 @@
 #define REMOTE_MEMORY_HPP
 
 #include "remote_memory/utils.hpp"
-#if defined(JM_PLATFORM_WINDOWS)
+#if defined(_WIN32)
     #include "remote_memory/windows.hpp"
-#elif defined(JM_PLATFORM_LINUX)
-#elif defined(JM_PLATFORM_OSX)
+#elif defined(__linux__)
+#elif defined(__APPLE__)
 #else
     #error "unknown platform"
 #endif
@@ -50,6 +50,8 @@ namespace jm {
         }
 
     };
+
+    using remote_memory = basic_remote_memory<detail::memory_traits>;
 
 }
 
