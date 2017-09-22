@@ -69,7 +69,7 @@ namespace jm { namespace detail {
         ~basic_memory_traits() noexcept = default;
 
         template<typename T>
-        void read(address_type address, T* buffer, size_type size)
+        void read(address_type address, T* buffer, size_type size) const
         {
             if (!ReadProcessMemory(Storage::handle()
                                    , reinterpret_cast<const void*>(address + Storage::base_address())
@@ -78,9 +78,19 @@ namespace jm { namespace detail {
                                    , nullptr))
                 throw_last_error("ReadProcessMemory() failed");
         }
+        template<typename T>
+        void read(address_type address, T* buffer, size_type size, std::error_code& ec) const noexcept
+        {
+            if (!ReadProcessMemory(Storage::handle()
+                                   , reinterpret_cast<const void*>(address + Storage::base_address())
+                                   , buffer
+                                   , size
+                                   , nullptr))
+                ec = get_last_error();
+        }
 
         template<typename T>
-        void write(address_type address, const T* buffer, size_type size)
+        void write(address_type address, const T* buffer, size_type size) const
         {
             if (!WriteProcessMemory(Storage::handle()
                                     , reinterpret_cast<void*>(address + Storage::base_address())
@@ -89,6 +99,18 @@ namespace jm { namespace detail {
                                     , nullptr))
                 throw_last_error("WriteProcessMemory() failed");
         }
+
+        template<typename T>
+        void write(address_type address, const T* buffer, size_type size, std::error_code& ec) const noexcept
+        {
+            if (!WriteProcessMemory(Storage::handle()
+                                    , reinterpret_cast<void*>(address + Storage::base_address())
+                                    , buffer
+                                    , size
+                                    , nullptr))
+                ec = get_last_error();
+        }
+
     };
 
     using memory_traits       = basic_memory_traits<default_rm_storage>;

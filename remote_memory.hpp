@@ -3,7 +3,7 @@
 
 #include "remote_memory/utils.hpp"
 #if defined(JM_PLATFORM_WINDOWS)
-    #include "remote_memory/windows
+    #include "remote_memory/windows.hpp"
 #elif defined(JM_PLATFORM_LINUX)
 #elif defined(JM_PLATFORM_OSX)
 #else
@@ -15,7 +15,7 @@ namespace jm {
     template<class MemoryTraits>
     struct basic_remote_memory : public MemoryTraits {
         using address_type = MemoryTraits::address_type;
-        using size_type = MemoryTraits::size_type;
+        using size_type    = MemoryTraits::size_type;
 
         template <class T, class Address>
         void read(Address address, T* buffer, size_type size) const
