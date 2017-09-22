@@ -52,7 +52,7 @@ namespace jm { namespace detail {
     template<class TraitsType>
     class default_rm_storage {
         typename TraitsType::address_type _base_address;
-        void*                             _handle;
+        void* _handle;
 
     public:
         const typename TraitsType::address_type& base_address() const noexcept { return _base_address; }
@@ -79,7 +79,7 @@ namespace jm { namespace detail {
         using size_type    = SIZE_T_;
 
         template<typename... Args>
-        basic_memory_traits(Args&&... args)
+        basic_memory_traits(Args&& ... args)
                 : Storage(std::forward<Args>(args)...) {}
 
         // TODO add all operators
@@ -118,7 +118,6 @@ namespace jm { namespace detail {
                                     , nullptr))
                 throw_last_error("WriteProcessMemory() failed");
         }
-
         template<typename T>
         void write(address_type address, const T* buffer, size_type size, std::error_code& ec) const noexcept
         {

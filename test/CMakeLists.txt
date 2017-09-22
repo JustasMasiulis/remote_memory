@@ -23,7 +23,7 @@ set (TEST_SOURCE_FILES
 add_executable (${TEST_APP_NAME} ${TEST_SOURCE_FILES})
 
 #add the library
-target_link_libraries (${TEST_APP_NAME} memory_signature)
+target_link_libraries (${TEST_APP_NAME} remote_memory)
 
 # Turn on CMake testing capabilities
 enable_testing()
