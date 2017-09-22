@@ -49,38 +49,41 @@ namespace jm { namespace detail {
         throw std::system_error(get_last_error(), msg);
     }
 
-    template<class TraitsType>
+    template<class AddressType, class SizeType>
     class default_rm_storage {
-        typename TraitsType::address_type _base_address;
-        void* _handle;
+        void*       _handle;
+        AddressType _base_address;
 
     public:
-        const typename TraitsType::address_type& base_address() const noexcept { return _base_address; }
+        const AddressType& base_address() const noexcept { return _base_address; }
 
-        typename TraitsType::address_type& base_address() noexcept { return _base_address; }
+        AddressType& base_address() noexcept { return _base_address; }
 
-        void* handle() const noexcept { return _handle.native(); }
+    protected:
+        void* handle() const noexcept { return _handle; }
     };
 
-    template<class TraitsType>
+    template<class AddressType, class SizeType>
     class baseless_rm_storage {
         void* _handle;
 
     protected:
-        typename TraitsType::address_type base_address() const noexcept { return 0; }
+        AddressType base_address() const noexcept { return 0; }
 
-    public:
         void* handle() const noexcept { return _handle; }
     };
 
-    template<template<class> class Storage>
-    struct basic_memory_traits : public Storage<basic_memory_traits> {
+    template<template<class, class> class Storage>
+    class basic_memory_traits : public Storage<std::uintptr_t, SIZE_T_> {
+        using my_base = Storage<std::uintptr_t, SIZE_T_>;
+
+    public:
         using address_type = std::uintptr_t;
         using size_type    = SIZE_T_;
 
         template<typename... Args>
         basic_memory_traits(Args&& ... args)
-                : Storage(std::forward<Args>(args)...) {}
+                : my_base(std::forward<Args>(args)...) {}
 
         // TODO add all operators
 
@@ -90,8 +93,8 @@ namespace jm { namespace detail {
         template<typename T>
         void read(address_type address, T* buffer, size_type size) const
         {
-            if (!ReadProcessMemory(Storage::handle()
-                                   , reinterpret_cast<const void*>(address + Storage::base_address())
+            if (!ReadProcessMemory(my_base::handle()
+                                   , reinterpret_cast<const void*>(address + my_base::base_address())
                                    , buffer
                                    , size
                                    , nullptr))
@@ -100,8 +103,8 @@ namespace jm { namespace detail {
         template<typename T>
         void read(address_type address, T* buffer, size_type size, std::error_code& ec) const noexcept
         {
-            if (!ReadProcessMemory(Storage::handle()
-                                   , reinterpret_cast<const void*>(address + Storage::base_address())
+            if (!ReadProcessMemory(my_base::handle()
+                                   , reinterpret_cast<const void*>(address + my_base::base_address())
                                    , buffer
                                    , size
                                    , nullptr))
@@ -111,8 +114,8 @@ namespace jm { namespace detail {
         template<typename T>
         void write(address_type address, const T* buffer, size_type size) const
         {
-            if (!WriteProcessMemory(Storage::handle()
-                                    , reinterpret_cast<void*>(address + Storage::base_address())
+            if (!WriteProcessMemory(my_base::handle()
+                                    , reinterpret_cast<void*>(address + my_base::base_address())
                                     , buffer
                                     , size
                                     , nullptr))
@@ -121,8 +124,8 @@ namespace jm { namespace detail {
         template<typename T>
         void write(address_type address, const T* buffer, size_type size, std::error_code& ec) const noexcept
         {
-            if (!WriteProcessMemory(Storage::handle()
-                                    , reinterpret_cast<void*>(address + Storage::base_address())
+            if (!WriteProcessMemory(my_base::handle()
+                                    , reinterpret_cast<void*>(address + my_base::base_address())
                                     , buffer
                                     , size
                                     , nullptr))

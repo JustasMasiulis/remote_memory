@@ -16,9 +16,9 @@ namespace jm {
     template<class MemoryTraits>
     struct basic_remote_memory : public MemoryTraits {
         /// \brief The type to be used for integral representation of address.
-        using address_type = MemoryTraits::address_type;
+        using address_type = typename MemoryTraits::address_type;
         /// \brief The type to be used for size.
-        using size_type    = MemoryTraits::size_type;
+        using size_type    = typename MemoryTraits::size_type;
 
         /// \brief Reads the memory at range [address; address + size] into given buffer.
         /// \param address The address in the target process to read from.
@@ -60,6 +60,7 @@ namespace jm {
             MemoryTraits::read(detail::pointer_cast<address_type>(address), &_storage, sizeof(T));
             return *static_cast<T*>(static_cast<void*>(&_storage));
         }
+        template<class T, class Address>
         T read(Address address, std::error_code& ec) const noexcept
         {
             typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type _storage;
