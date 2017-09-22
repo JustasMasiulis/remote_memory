@@ -109,8 +109,7 @@ namespace remote {
         }
     };
 
-    using based_memory = basic_memory<detail::memory_traits>;
-    using memory       = basic_memory<detail::baseless_memory_traits>;
+    using memory = basic_memory<detail::baseless_memory_traits>;
 
 }
 

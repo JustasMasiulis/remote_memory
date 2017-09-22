@@ -19,6 +19,7 @@
 
 #include <stdexcept>
 #include <limits>
+#include "process_handle/include/process_handle.hpp"
 
 namespace jm { namespace detail {
 
