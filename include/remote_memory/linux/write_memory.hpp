@@ -33,7 +33,7 @@ namespace remote {
     template<typename T, class Address, class Size>
     inline void write_memory(int handle, Address address, const T* buffer, Size size)
     {
-        const ::iovec local  = {buffer, size};
+        const ::iovec local  = {const_cast<T*>(buffer), size};
         const ::iovec target = {jm::detail::pointer_cast<void*>(address), size};
 
         const auto written = ::process_vm_writev(handle, &local, 1, &target, 1, 0);
@@ -56,7 +56,7 @@ namespace remote {
     inline void write_memory(int handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
-        const ::iovec local  = {buffer, size};
+        const ::iovec local  = {const_cast<T*>(buffer), size};
         const ::iovec target = {jm::detail::pointer_cast<void*>(address), size};
 
         const auto written = ::process_vm_writev(handle, &local, 1, &target, 1, 0);
