@@ -3,7 +3,6 @@ project(remote_memory)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 set(detail_header_files
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/error.hpp
