@@ -14,54 +14,63 @@
 * limitations under the License.
 */
 
-#ifndef REMOTE_MEMORY_WRITE_MEMORY_HPP
-#define REMOTE_MEMORY_WRITE_MEMORY_HPP
+#ifndef REMOTE_MEMORY_OPERATIONS_POLICY_HPP
+#define REMOTE_MEMORY_OPERATIONS_POLICY_HPP
 
-namespace remote {
+#if defined(_WIN32)
+    #include "windows/read_memory.hpp"
+    #include "windows/write_memory.hpp"
+    #include "remote_memory/windows/types.hpp"
+#elif defined(__linux__)
+#elif defined(__APPLE__)
+#else
+    #error "unknown platform"
+#endif
 
-    namespace detail {
+class operations_policy
+{
+    jm::process_handle _handle;
 
-        extern "C" __declspec(dllimport) int __stdcall
-        WriteProcessMemory(void* process_handle, void* base_address, const void* buffer, SIZE_T_ size
-                           , SIZE_T_* bytes_read);
+public:
+    /// \brief Forwards all arguments to the jm::process_handle
+    template<class... Args>
+    operations_policy(Args&&... args)
+            : _handle(std::forward<Args>(args)...) {}
 
-    } // namespace remote::detail
+    template<class T, class Address, class Size>
+    inline void read_memory(Address address, T* buffer, Size size) const
+    {
+        read_memory(_handle.native(), address, buffer, size);
+    };
+
+    template<class T, class Address, class Size>
+    inline void read_memory(Address address, T* buffer, Size size, std::error_code& ec) const noexcept
+    {
+        read_memory(_handle.native(), address, buffer, size, ec);
+    };
 
     /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
-    /// \param handle The handle to remote process.
     /// \param address The address of the memory region to which the data will be written into.
     /// \param buffer The buffer whose data will be written into remote memory.
     /// \param size The size of memory region to overwrite.
     /// \throw Throws an std::system_error on failure.
     template<typename T, class Address, class Size>
-    inline void write_memory(const void* handle, Address address, const T* buffer, Size size)
+    inline void write(const void* handle, Address address, const T* buffer, Size size)
     {
-        if (!detail::WriteProcessMemory(const_cast<void*>(handle)
-                                        , reinterpret_cast<void*>(address)
-                                        , buffer
-                                        , size
-                                        , nullptr))
-            throw_last_error("WriteProcessMemory() failed");
+        write_memory(_handle.native(), address, buffer, size);
     }
 
     /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
-    /// \param handle The handle to remote process.
     /// \param address The address of the memory region to which the data will be written into.
     /// \param buffer The buffer whose data will be written into remote memory.
     /// \param size The size of memory region to overwrite.
     /// \param ec The error code that will be set in case of failure.
     /// \throw Does not throw.
     template<class T, class Address, class Size>
-    inline void write_memory(const void* handle, Address address, const T* buffer, Size size, std::error_code& ec) noexcept
+    inline void write(Address address, const T* buffer, Size size, std::error_code& ec) noexcept
     {
-        if (!detail::WriteProcessMemory(const_cast<void*>(handle)
-                                        , reinterpret_cast<void*>(address)
-                                        , buffer
-                                        , size
-                                        , nullptr))
-            ec = get_last_error();
+        write_memory(_handle.native(), address, buffer, size, ec);
     }
+};
 
-} // namespace remote
-
-#endif // include guard
+#endif //REMOTE_MEMORY_OPERATIONS_POLICY_HPP

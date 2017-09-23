@@ -3,13 +3,7 @@
 
 #include "remote_memory/utils.hpp"
 
-#if defined(_WIN32)
-    #include "remote_memory/windows.hpp"
-#elif defined(__linux__)
-#elif defined(__APPLE__)
-#else
-    #error "unknown platform"
-#endif
+
 
 namespace remote {
 
@@ -107,9 +101,27 @@ namespace remote {
         {
             OperationsPolicy::write(jm::detail::pointer_cast<address_type>(address), std::addressof(buffer), sizeof(T), ec);
         }
+
+        /// \brief Traverses a pointers chain.
+        /// \param base The address of next pointer that will be dereferenced.
+        /// \param offset The offset that will be added to the derefenenced pointer.
+        /// \param args The offsets that will be recursively added.
+        /// \code traverse_pointers_chain(base_address, 0x20, 0x8)
+        ///       // same as *(*(*(base_address) + 0x20) + 0x8)
+        template <class Ptr, class Base, class Offset, class... Args>
+        Ptr traverse_pointers_chain(Base base, Offset offset, Args... args)
+        {
+            const auto next = read<Ptr>(base) + offset;
+            return traverse_pointers_chain(next, args...);
+        };
+        template <class Ptr, class Base, class Offset>
+        Ptr traverse_pointers_chain(Base base, Offset offset)
+        {
+            return read<Ptr>(base) + offset;
+        };
     };
 
-    using memory = basic_memory<detail::baseless_memory_traits>;
+    using memory = basic_memory<memory_operations>;
 
 }
 

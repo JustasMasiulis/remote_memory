@@ -21,15 +21,7 @@
 
 namespace remote { namespace detail {
 
-#ifdef _WIN64
-    #if defined(__CYGWIN__)
-    typedef unsigned long SIZE_T_;
-    #else
-    typedef unsigned __int64 SIZE_T_;
-    #endif
-#else
-    typedef unsigned long SIZE_T_;
-#endif
+
 
     inline std::error_code get_last_error() noexcept
     {

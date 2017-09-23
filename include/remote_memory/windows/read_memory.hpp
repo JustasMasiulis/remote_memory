@@ -27,7 +27,7 @@ namespace remote {
         ReadProcessMemory(void* process_handle, const void* base_address, void* buffer, SIZE_T_ size
                           , SIZE_T_* bytes_read);
 
-    }
+    } // namespace remote::detail
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
     /// \param handle The handle to remote process.
