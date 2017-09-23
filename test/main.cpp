@@ -1,18 +1,16 @@
 #include <catch_with_main.hpp>
 #include <remote_memory.hpp>
 
-const int integer = 26;
+const int   integer  = 26;
 const float floating = 1.26f;
-auto* ptr_i = &integer;
+auto* ptr_i     = &integer;
 auto* ptr_ptr_i = &ptr_i;
 remote::memory mem;
 
-TEST_CASE("read<type>(address)")
+TEST_CASE("type read<type>(address)")
 {
-    SECTION("exception based")
-    {
-        SECTION("pointer")
-        {
+    SECTION("exception based") {
+        SECTION("pointer") {
             auto i = mem.read<int>(ptr_i);
             REQUIRE(i == integer);
 
@@ -23,8 +21,7 @@ TEST_CASE("read<type>(address)")
             REQUIRE(ptr == ptr_i);
         }
 
-        SECTION("integral pointer")
-        {
+        SECTION("integral pointer") {
             auto i = mem.read<int>(reinterpret_cast<std::uintptr_t>(ptr_i));
             REQUIRE(i == integer);
 
@@ -36,11 +33,9 @@ TEST_CASE("read<type>(address)")
         }
     }
 
-    SECTION("error_code based")
-    {
+    SECTION("error_code based") {
         std::error_code ec;
-        SECTION("pointer")
-        {
+        SECTION("pointer") {
             int i = 0;
             REQUIRE_NOTHROW(i = mem.read<int>(ptr_i, ec));
             REQUIRE_FALSE(ec);
@@ -57,8 +52,7 @@ TEST_CASE("read<type>(address)")
             REQUIRE(ptr == ptr_i);
         }
 
-        SECTION("integral pointer")
-        {
+        SECTION("integral pointer") {
             int i = 0;
             REQUIRE_NOTHROW(i = mem.read<int>(reinterpret_cast<std::uintptr_t>(ptr_i), ec));
             REQUIRE_FALSE(ec);
@@ -78,35 +72,143 @@ TEST_CASE("read<type>(address)")
 
 }
 
-TEST_CASE("read(address, T&)")
+TEST_CASE("void read(address, T&)")
 {
-    SECTION("pointer")
-    {
-        int i = 0;
-        mem.read(ptr_i, i);
-        REQUIRE(i == integer);
+    SECTION("exception based") {
+        SECTION("pointer") {
+            int i = 0;
+            mem.read(ptr_i, i);
+            REQUIRE(i == integer);
 
-        float f;
-        mem.read(&floating, f);
-        REQUIRE(f == floating);
+            float f;
+            mem.read(&floating, f);
+            REQUIRE(f == floating);
 
-        const int* ptr;
-        mem.read(&ptr_i, ptr);
-        REQUIRE(ptr == ptr_i);
+            const int* ptr;
+            mem.read(&ptr_i, ptr);
+            REQUIRE(ptr == ptr_i);
+        }
+
+        SECTION("integral pointer") {
+            int i;
+            mem.read(reinterpret_cast<std::uintptr_t>(ptr_i), i);
+            REQUIRE(i == integer);
+
+            float f;
+            mem.read(reinterpret_cast<std::uintptr_t>(&floating), f);
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.read(reinterpret_cast<std::uintptr_t>(&ptr_i), ptr);
+            REQUIRE(ptr == ptr_i);
+        }
     }
 
-    SECTION("integral pointer")
-    {
-        int i;
-        mem.read(reinterpret_cast<std::uintptr_t>(ptr_i), i);
-        REQUIRE(i == integer);
+    SECTION("error code based") {
+        std::error_code ec;
+        SECTION("pointer") {
+            int i = 0;
+            mem.read(ptr_i, i, ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(i == integer);
 
-        float f;
-        mem.read(reinterpret_cast<std::uintptr_t>(&floating), f);
-        REQUIRE(f == floating);
+            float f;
+            mem.read(&floating, f, ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(f == floating);
 
-        const int* ptr;
-        mem.read(reinterpret_cast<std::uintptr_t>(&ptr_i), ptr);
-        REQUIRE(ptr == ptr_i);
+            const int* ptr;
+            mem.read<const int*>(&ptr_i, ptr, ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(ptr == ptr_i);
+        }
+
+        SECTION("integral pointer") {
+            int i;
+            mem.read(reinterpret_cast<std::uintptr_t>(ptr_i), i, ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(i == integer);
+
+            float f;
+            mem.read(reinterpret_cast<std::uintptr_t>(&floating), f, ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.read<const int*>(reinterpret_cast<std::uintptr_t>(&ptr_i), ptr, ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(ptr == ptr_i);
+        }
     }
 }
+
+TEST_CASE("void read(address, T*, size)")
+{
+    SECTION("exception based") {
+        SECTION("pointer") {
+            int i = 0;
+            mem.read(ptr_i, &i, sizeof(i));
+            REQUIRE(i == integer);
+
+            float f;
+            mem.read(&floating, &f, sizeof(f));
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.read(&ptr_i, &ptr, sizeof(ptr));
+            REQUIRE(ptr == ptr_i);
+        }
+
+        SECTION("integral pointer") {
+            int i;
+            mem.read(reinterpret_cast<std::uintptr_t>(ptr_i), &i, sizeof(i));
+            REQUIRE(i == integer);
+
+            float f;
+            mem.read(reinterpret_cast<std::uintptr_t>(&floating), &f, sizeof(f));
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.read(reinterpret_cast<std::uintptr_t>(&ptr_i), &ptr, sizeof(ptr));
+            REQUIRE(ptr == ptr_i);
+        }
+    }
+
+    SECTION("error code based") {
+        std::error_code ec;
+        SECTION("pointer") {
+            int i = 0;
+            mem.read(ptr_i, &i, sizeof(i), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(i == integer);
+
+            float f;
+            mem.read(&floating, &f, sizeof(f), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.read<const int*>(&ptr_i, &ptr, sizeof(ptr), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(ptr == ptr_i);
+        }
+
+        SECTION("integral pointer") {
+            int i;
+            mem.read(reinterpret_cast<std::uintptr_t>(ptr_i), &i, sizeof(i), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(i == integer);
+
+            float f;
+            mem.read(reinterpret_cast<std::uintptr_t>(&floating), &f, sizeof(f), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.read<const int*>(reinterpret_cast<std::uintptr_t>(&ptr_i), &ptr, sizeof(ptr), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(ptr == ptr_i);
+        }
+    }
+}
+

@@ -53,7 +53,7 @@ namespace remote {
     ///           but performs only a partial write error code is set to result_out_of_range.
     /// \throw May throw an std::overflow_error if the address is out of native address type range.
     template<class T, class Address, class Size>
-    inline void write_memory(const void* handle, Address address, const T* buffer, Size size
+    inline void write_memory(int handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         const ::iovec local  = {buffer, size};
