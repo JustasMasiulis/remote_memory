@@ -17,11 +17,18 @@
 #ifndef REMOTE_MEMORY_WRITE_MEMORY_HPP
 #define REMOTE_MEMORY_WRITE_MEMORY_HPP
 
-#include <mach/mach.h>
+#include <mach/mach_types.h>
 #include <system_error>
 #include <cstdint>
 
 namespace remote {
+
+    namespace detail {
+
+        extern "C" ::kern_return_t mach_vm_write(::vm_map_t target_task, ::mach_vm_address_t address, ::vm_offset_t data
+                                                 , ::mach_msg_type_number_t dataCnt);
+
+    }
 
     /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
     /// \param handle The handle to remote process.
@@ -32,10 +39,10 @@ namespace remote {
     template<typename T, class Address, class Size>
     inline void write_memory(::mach_port_t handle, Address address, const T* buffer, Size size)
     {
-        const auto kr = ::mach_vm_write(handle
-                                        , reinterpret_cast<std::uint64_t>(address)
-                                        , reinterpret_cast<std::uintptr_t>(buffer)
-                                        , reinterpret_cast<::mach_msg_type_number_t>(size));
+        const auto kr = detail::mach_vm_write(handle
+                                              , reinterpret_cast<::mach_vm_address_t>(address)
+                                              , reinterpret_cast<::vm_offset_t>(buffer)
+                                              , reinterpret_cast<::mach_msg_type_number_t>(size));
         if (kr != KERN_SUCCESS)
             throw std::system_error(std::error_code(kr, std::system_category()), "mach_vm_write() failed");
     }
@@ -51,10 +58,10 @@ namespace remote {
     inline void
     write_memory(::mach_port_t handle, Address address, const T* buffer, Size size, std::error_code& ec) noexcept
     {
-        const auto kr = ::mach_vm_write(handle
-                                        , reinterpret_cast<std::uint64_t>(address)
-                                        , reinterpret_cast<std::uintptr_t>(buffer)
-                                        , reinterpret_cast<::mach_msg_type_number_t>(size));
+        const auto kr = detail::mach_vm_write(handle
+                                              , reinterpret_cast<::mach_vm_address_t>(address)
+                                              , reinterpret_cast<::vm_offset_t>(buffer)
+                                              , reinterpret_cast<::mach_msg_type_number_t>(size));
         if (kr != KERN_SUCCESS)
             ec = std::error_code(kr, std::system_category());
     }
