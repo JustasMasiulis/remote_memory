@@ -59,7 +59,7 @@ namespace remote {
         /// \param size The size of memory region to overwrite.
         /// \throw Throws an std::system_error on failure.
         template<typename T, class Address, class Size>
-        inline void write(const void* handle, Address address, const T* buffer, Size size)
+        inline void write(Address address, const T* buffer, Size size) const
         {
             write_memory(_handle.native(), address, buffer, size);
         }
@@ -71,7 +71,7 @@ namespace remote {
         /// \param ec The error code that will be set in case of failure.
         /// \throw Does not throw.
         template<class T, class Address, class Size>
-        inline void write(Address address, const T* buffer, Size size, std::error_code& ec) noexcept
+        inline void write(Address address, const T* buffer, Size size, std::error_code& ec) const noexcept
         {
             write_memory(_handle.native(), address, buffer, size, ec);
         }

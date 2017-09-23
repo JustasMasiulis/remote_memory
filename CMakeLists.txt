@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
-
 set(detail_header_files
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/error.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/utils.hpp
@@ -20,9 +19,6 @@ set(header_files
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/write_memory.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/read_memory.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/write_memory.hpp)
-
-
-
 
 include_directories (${PROJECT_SOURCE_DIR}/include)
 add_library (remote_memory INTERFACE)
