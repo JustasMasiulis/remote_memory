@@ -17,7 +17,7 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_HPP
 #define REMOTE_MEMORY_READ_MEMORY_HPP
 
-#include <mach/mach_vm.c>
+#include <mach/mach.h>
 #include <system_error>
 #include <cstdint>
 
