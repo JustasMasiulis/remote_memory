@@ -29,22 +29,25 @@ namespace jm { namespace detail {
     #endif
 
     template<std::size_t S>
-    struct uintptr_adaptive;
+    struct as_uintptr;
 
     template<>
-    struct uintptr_adaptive<4> {
+    struct as_uintptr<4> {
         using type = std::uint32_t;
     };
     template<>
-    struct uintptr_adaptive<8> {
+    struct as_uintptr<8> {
         using type = std::uint64_t;
     };
+
+    template<std::size_t Size>
+    using as_uintptr_t = typename as_uintptr<Size>::type;
 
     template<typename Px, typename Py>
     constexpr Px pointer_cast(Py ptr)
     {
 #if !defined(REMOTE_MEMORY_NO_PTR_CHECKING)
-        if (ptr > std::numeric_limits<typename uintptr_adaptive<sizeof(Px)>::type>::max())
+        if (ptr > std::numeric_limits<as_uintptr_t<sizeof(Px)>>::max())
             throw std::overflow_error("attempt to cast to pointer of insufficient size");
 #endif
 

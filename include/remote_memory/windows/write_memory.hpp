@@ -28,7 +28,8 @@ namespace remote {
     /// \param address The address of the memory region to which the data will be written into.
     /// \param buffer The buffer whose data will be written into remote memory.
     /// \param size The size of memory region to overwrite.
-    /// \throw Throws an std::system_error on failure.
+    /// \throw Throws an std::system_error on failure or std::overflow_error
+    ///        if address is out of native address type range.
     template<typename T, class Address, class Size>
     inline void write_memory(const void* handle, Address address, const T* buffer, Size size)
     {
@@ -46,7 +47,7 @@ namespace remote {
     /// \param buffer The buffer whose data will be written into remote memory.
     /// \param size The size of memory region to overwrite.
     /// \param ec The error code that will be set in case of failure.
-    /// \throw Does not throw.
+    /// \throw May throw an std::overflow_error if the address is out of native address type range.
     template<class T, class Address, class Size>
     inline void write_memory(const void* handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers)

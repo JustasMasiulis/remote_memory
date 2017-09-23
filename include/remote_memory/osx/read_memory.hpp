@@ -17,9 +17,9 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_HPP
 #define REMOTE_MEMORY_READ_MEMORY_HPP
 
-#include "../error.hpp"
-#include "../utils.hpp"
-#include "definitions.hpp"
+#include <mach/mach_vm.defs>
+#include <system_error>
+#include <cstdint>
 
 namespace remote {
 
@@ -28,18 +28,18 @@ namespace remote {
     /// \param address The address of the memory region that will be read.
     /// \param buffer The buffer into which the memory will be read into.
     /// \param size The size of memory region to read into memory buffer.
-    /// \throw Throws an std::system_error on failure or std::overflow_error
-    ///        if address is out of native address type range.
+    /// \throw Throws an std::system_error on failure.
     template<class T, class Address, class Size>
-    inline void read_memory(const void* handle, Address address, T* buffer, Size size)
+    inline void read_memory(::mach_port_t handle, Address address, T* buffer, Size size)
     {
-        // the handle won't get modified so we can take it as const and then cast it away
-        if (!detail::ReadProcessMemory(const_cast<void*>(handle)
-                                       , jm::detail::pointer_cast<const void*>(address)
-                                       , buffer
-                                       , size
-                                       , nullptr))
-            detail::throw_last_error("ReadProcessMemory() failed");
+        std::uint64_t read;
+        const auto    kr = ::mach_vm_read_overwrite(handle
+                                                    , reinterpret_cast<std::uint64_t>(address)
+                                                    , static_cast<std::uint64_t>(size)
+                                                    , reinterpret_cast<std::uint64_t>(buffer)
+                                                    , &read);
+        if (kr != KERN_SUCCESS)
+            throw std::system_error(std::error_code(kr, std::system_category()), "mach_vm_read_overwrite() failed");
     };
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
@@ -48,17 +48,18 @@ namespace remote {
     /// \param buffer The buffer into which the memory will be read into.
     /// \param size The size of memory region to read into memory buffer.
     /// \param ec The error code that will be set on failure.
-    /// \throw May throw an std::overflow_error if the address is out of native address type range.
+    /// \throw Does not throw.
     template<class T, class Address, class Size>
-    inline void read_memory(const void* handle, Address address, T* buffer, Size size
-                            , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
+    inline void read_memory(::mach_port_t handle, Address address, T* buffer, Size size, std::error_code& ec) noexcept
     {
-        if (!detail::ReadProcessMemory(const_cast<void*>(handle)
-                                       , jm::detail::pointer_cast<const void*>(address)
-                                       , buffer
-                                       , size
-                                       , nullptr))
-            ec = detail::get_last_error();
+        std::uint64_t read;
+        const auto    kr = ::mach_vm_read_overwrite(handle
+                                                    , reinterpret_cast<std::uint64_t>(address)
+                                                    , static_cast<std::uint64_t>(size)
+                                                    , reinterpret_cast<std::uint64_t>(buffer)
+                                                    , &read);
+        if (kr != KERN_SUCCESS)
+            ec = std::error_code(kr, std::system_category());
     };
 
 } // namespace remote
