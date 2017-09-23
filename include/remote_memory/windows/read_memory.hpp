@@ -18,16 +18,9 @@
 #define REMOTE_MEMORY_READ_MEMORY_HPP
 
 #include "../utils.hpp"
+#include "definitions.hpp"
 
 namespace remote {
-
-    namespace detail {
-
-        extern "C" __declspec(dllimport) int __stdcall
-        ReadProcessMemory(void* process_handle, const void* base_address, void* buffer, SIZE_T_ size
-                          , SIZE_T_* bytes_read);
-
-    } // namespace remote::detail
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
     /// \param handle The handle to remote process.
@@ -40,11 +33,11 @@ namespace remote {
     {
         // the handle won't get modified so we can take it as const and then cast it away
         if (!detail::ReadProcessMemory(const_cast<void*>(handle)
-                                       , detail::pointer_cast<const void*>(address)
+                                       , jm::detail::pointer_cast<const void*>(address)
                                        , buffer
                                        , size
                                        , nullptr))
-            throw_last_error("ReadProcessMemory() failed");
+            detail::throw_last_error("ReadProcessMemory() failed");
     };
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
@@ -58,11 +51,11 @@ namespace remote {
     inline void read_memory(const void* handle, Address address, T* buffer, Size size, std::error_code& ec) noexcept
     {
         if (!detail::ReadProcessMemory(const_cast<void*>(handle)
-                                       , detail::pointer_cast<const void*>(address)
+                                       , jm::detail::pointer_cast<const void*>(address)
                                        , buffer
                                        , size
                                        , nullptr))
-            ec = get_last_error();
+            ec = detail::get_last_error();
     };
 
 } // namespace remote

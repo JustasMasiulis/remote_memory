@@ -20,7 +20,6 @@
 #if defined(_WIN32)
     #include "windows/read_memory.hpp"
     #include "windows/write_memory.hpp"
-    #include "remote_memory/windows/types.hpp"
 #elif defined(__linux__)
 #elif defined(__APPLE__)
 #else
@@ -38,13 +37,13 @@ public:
             : _handle(std::forward<Args>(args)...) {}
 
     template<class T, class Address, class Size>
-    inline void read_memory(Address address, T* buffer, Size size) const
+    inline void read(Address address, T* buffer, Size size) const
     {
         read_memory(_handle.native(), address, buffer, size);
     };
 
     template<class T, class Address, class Size>
-    inline void read_memory(Address address, T* buffer, Size size, std::error_code& ec) const noexcept
+    inline void read(Address address, T* buffer, Size size, std::error_code& ec) const noexcept
     {
         read_memory(_handle.native(), address, buffer, size, ec);
     };

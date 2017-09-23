@@ -17,15 +17,10 @@
 #ifndef REMOTE_MEMORY_WRITE_MEMORY_HPP
 #define REMOTE_MEMORY_WRITE_MEMORY_HPP
 
+#include "../utils.hpp"
+#include "definitions.hpp"
+
 namespace remote {
-
-    namespace detail {
-
-        extern "C" __declspec(dllimport) int __stdcall
-        WriteProcessMemory(void* process_handle, void* base_address, const void* buffer, SIZE_T_ size
-                           , SIZE_T_* bytes_read);
-
-    } // namespace remote::detail
 
     /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
     /// \param handle The handle to remote process.
@@ -37,11 +32,11 @@ namespace remote {
     inline void write_memory(const void* handle, Address address, const T* buffer, Size size)
     {
         if (!detail::WriteProcessMemory(const_cast<void*>(handle)
-                                        , reinterpret_cast<void*>(address)
+                                        , jm::detail::pointer_cast<void*>(address)
                                         , buffer
                                         , size
                                         , nullptr))
-            throw_last_error("WriteProcessMemory() failed");
+            detail::throw_last_error("WriteProcessMemory() failed");
     }
 
     /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
@@ -55,11 +50,11 @@ namespace remote {
     inline void write_memory(const void* handle, Address address, const T* buffer, Size size, std::error_code& ec) noexcept
     {
         if (!detail::WriteProcessMemory(const_cast<void*>(handle)
-                                        , reinterpret_cast<void*>(address)
+                                        , jm::detail::pointer_cast<void*>(address)
                                         , buffer
                                         , size
                                         , nullptr))
-            ec = get_last_error();
+            ec = detail::get_last_error();
     }
 
 } // namespace remote
