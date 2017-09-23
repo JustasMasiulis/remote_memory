@@ -23,9 +23,9 @@
 namespace jm { namespace detail {
 
     #if defined(REMOTE_MEMORY_NO_PTR_CHECKING)
-        constexpr static bool checked_pointers = false;
+    constexpr static bool checked_pointers = false;
     #else
-        constexpr static bool checked_pointers = true;
+    constexpr static bool checked_pointers = true;
     #endif
 
     template<std::size_t S>
@@ -40,24 +40,36 @@ namespace jm { namespace detail {
         using type = std::uint64_t;
     };
 
-    template<std::size_t Size>
-    using as_uintptr_t = typename as_uintptr<Size>::type;
+    template<std::size_t Size> using as_uintptr_t = typename as_uintptr<Size>::type;
 
-    template<typename Px, typename Py>
-    constexpr Px pointer_cast(Py ptr)
-    {
+    template<bool>
+    struct pointer_checker {
+        template<class P2, class P1>
+        inline static constexpr void check(P1) noexcept {}
+    };
+
 #if !defined(REMOTE_MEMORY_NO_PTR_CHECKING)
-        if (ptr > std::numeric_limits<as_uintptr_t<sizeof(Px)>>::max())
-            throw std::overflow_error("attempt to cast to pointer of insufficient size");
+
+    template<>
+    struct pointer_checker<true> {
+        template<class P2, class P1>
+        inline static constexpr void check(P1 p1)
+        {
+            if (reinterpret_cast<as_uintptr_t<sizeof(P1)>>(p1) > std::numeric_limits<as_uintptr_t<sizeof(P2)>>::max())
+                throw std::overflow_error("attempt to cast to pointer of insufficient size");
+        }
+    };
+
 #endif
 
-        return (Px) (ptr);
-    }
 
-    template<typename Px>
-    constexpr Px pointer_cast(Px ptr) noexcept
+    template<typename Px, typename Py>
+    inline constexpr Px pointer_cast(Py ptr) noexcept(!checked_pointers)
     {
-        ptr;
+        using my_pointer_checker = pointer_checker<(sizeof(Py) > sizeof(Px))>;
+        my_pointer_checker::template check<Px>(ptr);
+
+        return (Px) (ptr);
     }
 
 }}

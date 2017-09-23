@@ -30,50 +30,53 @@
     #error "unknown platform"
 #endif
 
-class operations_policy
-{
-    jm::process_handle _handle;
+namespace remote {
 
-public:
-    /// \brief Forwards all arguments to the jm::process_handle
-    template<class... Args>
-    operations_policy(Args&&... args)
-            : _handle(std::forward<Args>(args)...) {}
+    class operations_policy {
+        jm::process_handle _handle;
 
-    template<class T, class Address, class Size>
-    inline void read(Address address, T* buffer, Size size) const
-    {
-        read_memory(_handle.native(), address, buffer, size);
+    public:
+        /// \brief Forwards all arguments to the jm::process_handle
+        template<class... Args>
+        explicit operations_policy(Args&& ... args)
+                : _handle(std::forward<Args>(args)...) {}
+
+        template<class T, class Address, class Size>
+        inline void read(Address address, T* buffer, Size size) const
+        {
+            read_memory(_handle.native(), address, buffer, size);
+        };
+
+        template<class T, class Address, class Size>
+        inline void read(Address address, T* buffer, Size size, std::error_code& ec) const noexcept
+        {
+            read_memory(_handle.native(), address, buffer, size, ec);
+        };
+
+        /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
+        /// \param address The address of the memory region to which the data will be written into.
+        /// \param buffer The buffer whose data will be written into remote memory.
+        /// \param size The size of memory region to overwrite.
+        /// \throw Throws an std::system_error on failure.
+        template<typename T, class Address, class Size>
+        inline void write(const void* handle, Address address, const T* buffer, Size size)
+        {
+            write_memory(_handle.native(), address, buffer, size);
+        }
+
+        /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
+        /// \param address The address of the memory region to which the data will be written into.
+        /// \param buffer The buffer whose data will be written into remote memory.
+        /// \param size The size of memory region to overwrite.
+        /// \param ec The error code that will be set in case of failure.
+        /// \throw Does not throw.
+        template<class T, class Address, class Size>
+        inline void write(Address address, const T* buffer, Size size, std::error_code& ec) noexcept
+        {
+            write_memory(_handle.native(), address, buffer, size, ec);
+        }
     };
 
-    template<class T, class Address, class Size>
-    inline void read(Address address, T* buffer, Size size, std::error_code& ec) const noexcept
-    {
-        read_memory(_handle.native(), address, buffer, size, ec);
-    };
+} // namespace remote
 
-    /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
-    /// \param address The address of the memory region to which the data will be written into.
-    /// \param buffer The buffer whose data will be written into remote memory.
-    /// \param size The size of memory region to overwrite.
-    /// \throw Throws an std::system_error on failure.
-    template<typename T, class Address, class Size>
-    inline void write(const void* handle, Address address, const T* buffer, Size size)
-    {
-        write_memory(_handle.native(), address, buffer, size);
-    }
-
-    /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
-    /// \param address The address of the memory region to which the data will be written into.
-    /// \param buffer The buffer whose data will be written into remote memory.
-    /// \param size The size of memory region to overwrite.
-    /// \param ec The error code that will be set in case of failure.
-    /// \throw Does not throw.
-    template<class T, class Address, class Size>
-    inline void write(Address address, const T* buffer, Size size, std::error_code& ec) noexcept
-    {
-        write_memory(_handle.native(), address, buffer, size, ec);
-    }
-};
-
-#endif //REMOTE_MEMORY_OPERATIONS_POLICY_HPP
+#endif // include guard
