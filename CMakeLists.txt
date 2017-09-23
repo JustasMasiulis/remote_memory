@@ -19,11 +19,11 @@ set(header_files
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/read_memory.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/write_memory.hpp)
 
-include_directories (${PROJECT_SOURCE_DIR}/include)
-add_library (remote_memory INTERFACE)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+add_library(remote_memory INTERFACE)
 target_sources(remote_memory INTERFACE $<BUILD_INTERFACE:${detail_header_files} ${header_files}>)
 target_include_directories(remote_memory INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
 target_include_directories(remote_memory SYSTEM INTERFACE $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 
 enable_testing()
-add_subdirectory (test)
+add_subdirectory(test)
