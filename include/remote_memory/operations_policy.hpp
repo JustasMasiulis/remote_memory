@@ -21,6 +21,8 @@
     #include "windows/read_memory.hpp"
     #include "windows/write_memory.hpp"
 #elif defined(__linux__)
+    #include "linux/read_memory.hpp"
+    #include "linux/write_memory.hpp"
 #elif defined(__APPLE__)
 #else
     #error "unknown platform"

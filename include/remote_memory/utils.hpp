@@ -22,6 +22,12 @@
 
 namespace jm { namespace detail {
 
+    #if defined(REMOTE_MEMORY_NO_PTR_CHECKING)
+        constexpr static bool checked_pointers = false;
+    #else
+        constexpr static bool checked_pointers = true;
+    #endif
+
     template<std::size_t S>
     struct uintptr_adaptive;
 
