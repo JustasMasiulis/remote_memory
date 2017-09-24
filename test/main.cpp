@@ -5,6 +5,7 @@ const int   integer  = 26;
 const float floating = 1.26f;
 auto* ptr_i     = &integer;
 auto* ptr_ptr_i = &ptr_i;
+
 remote::memory mem;
 
 TEST_CASE("type read<type>(address)")
@@ -290,4 +291,3 @@ TEST_CASE("void write(address, const T&)")
         }
     }
 }
-

@@ -42,7 +42,7 @@ namespace remote {
     {
         std::uint64_t read;
         const auto    kr = detail::mach_vm_read_overwrite(handle
-                                                          , reinterpret_cast<::mach_vm_address_t>(address)
+                                                          , (::mach_vm_address_t)(address)
                                                           , static_cast<::mach_vm_size_t>(size)
                                                           , reinterpret_cast<::mach_vm_address_t>(buffer)
                                                           , &read);
@@ -62,7 +62,7 @@ namespace remote {
     {
         std::uint64_t read;
         const auto    kr = detail::mach_vm_read_overwrite(handle
-                                                          , reinterpret_cast<::mach_vm_address_t>(address)
+                                                          , (::mach_vm_address_t)(address)
                                                           , static_cast<::mach_vm_size_t>(size)
                                                           , reinterpret_cast<::mach_vm_address_t>(buffer)
                                                           , &read);

@@ -1,17 +1,31 @@
+/*
+* Copyright 2017 Justas Masiulis
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #ifndef REMOTE_MEMORY_HPP
 #define REMOTE_MEMORY_HPP
 
-#include "remote_memory/utils.hpp"
 #include "remote_memory/operations_policy.hpp"
-
 
 namespace remote {
 
     template<class OperationsPolicy>
     struct basic_memory : public OperationsPolicy {
         template<class... Args>
-        basic_memory(Args&&... args)
-            : OperationsPolicy(std::forward<Args>(args)...) {};
+        explicit basic_memory(Args&& ... args)
+                : OperationsPolicy(std::forward<Args>(args)...) {};
 
         basic_memory(const basic_memory&) = default;
         basic_memory& operator=(const basic_memory&) = default;
@@ -103,16 +117,19 @@ namespace remote {
         /// \param args The offsets that will be recursively added.
         /// \code traverse_pointers_chain(base_address, 0x20, 0x8)
         ///       // same as *(*(*(base_address) + 0x20) + 0x8)
-        template <class Ptr, class Base, class Offset, class... Args>
+        template<class Ptr = std::uintptr_t, class Base, class Offset, class... Args>
         Ptr traverse_pointers_chain(Base base, Offset offset, Args... args)
         {
-            const auto next = read<Ptr>(base) + offset;
-            return traverse_pointers_chain(next, args...);
+            jm::detail::as_uintptr_t<sizeof(Ptr)> next;
+            read(base, next);
+            return traverse_pointers_chain(next + offset, args...);
         };
-        template <class Ptr, class Base, class Offset>
+        template<class Ptr = std::uintptr_t, class Base, class Offset>
         Ptr traverse_pointers_chain(Base base, Offset offset)
         {
-            return read<Ptr>(base) + offset;
+            jm::detail::as_uintptr_t<sizeof(Ptr)> next;
+            read(base, next);
+            return next + offset;
         };
     };
 

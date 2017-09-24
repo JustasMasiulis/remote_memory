@@ -40,9 +40,9 @@ namespace remote {
     inline void write_memory(::mach_port_t handle, Address address, const T* buffer, Size size)
     {
         const auto kr = detail::mach_vm_write(handle
-                                              , reinterpret_cast<::mach_vm_address_t>(address)
+                                              , (::mach_vm_address_t)(address)
                                               , reinterpret_cast<::vm_offset_t>(buffer)
-                                              , reinterpret_cast<::mach_msg_type_number_t>(size));
+                                              , static_cast<::mach_msg_type_number_t>(size));
         if (kr != KERN_SUCCESS)
             throw std::system_error(std::error_code(kr, std::system_category()), "mach_vm_write() failed");
     }
@@ -59,9 +59,9 @@ namespace remote {
     write_memory(::mach_port_t handle, Address address, const T* buffer, Size size, std::error_code& ec) noexcept
     {
         const auto kr = detail::mach_vm_write(handle
-                                              , reinterpret_cast<::mach_vm_address_t>(address)
+                                              , (::mach_vm_address_t)(address)
                                               , reinterpret_cast<::vm_offset_t>(buffer)
-                                              , reinterpret_cast<::mach_msg_type_number_t>(size));
+                                              , static_cast<::mach_msg_type_number_t>(size));
         if (kr != KERN_SUCCESS)
             ec = std::error_code(kr, std::system_category());
     }
