@@ -291,3 +291,90 @@ TEST_CASE("void write(address, const T&)")
         }
     }
 }
+
+TEST_CASE("void write(address, const T*, size)")
+{
+    SECTION("exception based") {
+        SECTION("pointer") {
+            int i = 0;
+            mem.write(&i, &integer, sizeof(int));
+            REQUIRE(i == integer);
+
+            float f;
+            mem.write(&f, &floating, sizeof(float));
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.write(&ptr, &ptr_i, sizeof(ptr_i));
+            REQUIRE(ptr == ptr_i);
+        }
+
+        SECTION("integral pointer") {
+            int i = 0;
+            mem.write(reinterpret_cast<std::uintptr_t>(&i), &integer, sizeof(int));
+            REQUIRE(i == integer);
+
+            float f;
+            mem.write(reinterpret_cast<std::uintptr_t>(&f), &floating, sizeof(float));
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.write(reinterpret_cast<std::uintptr_t>(&ptr), &ptr_i, sizeof(ptr_i));
+            REQUIRE(ptr == ptr_i);
+        }
+    }
+
+    SECTION("error code based") {
+        std::error_code ec;
+        SECTION("pointer") {
+            int i = 0;
+            mem.write(&i, &integer, sizeof(int), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(i == integer);
+
+            float f;
+            mem.write(&f, &floating, sizeof(float), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.write<const int*>(&ptr, &ptr_i, sizeof(ptr_i), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(ptr == ptr_i);
+        }
+
+        SECTION("integral pointer") {
+            int i = 0;
+            mem.write(reinterpret_cast<std::uintptr_t>(&i), &integer, sizeof(int), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(i == integer);
+
+            float f;
+            mem.write(reinterpret_cast<std::uintptr_t>(&f), &floating, sizeof(float), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(f == floating);
+
+            const int* ptr;
+            mem.write<const int*>(reinterpret_cast<std::uintptr_t>(&ptr), &ptr_i, sizeof(ptr_i), ec);
+            REQUIRE_FALSE(ec);
+            REQUIRE(ptr == ptr_i);
+        }
+    }
+}
+
+TEST_CASE("traverse_pointers_chain")
+{
+    struct fake_data {
+        fake_data(std::uint64_t i_, fake_data* ptr)
+                : i(i_), p(ptr) {}
+        std::uint64_t i;
+        fake_data* p;
+    };
+    static_assert(sizeof(fake_data) == sizeof(void*) + 8, "SPENT LIKE 4 HOURS ON THIS THING TURNS OUT IT PADDED THE 32 BIT INT");
+
+    auto data = new fake_data(333, new fake_data(222, new fake_data(111, nullptr)));
+
+    auto result = mem.read<std::uint64_t>(mem.traverse_pointers_chain(reinterpret_cast<std::uintptr_t>(data) + 8, 8));
+
+    REQUIRE(result == 111 );
+}

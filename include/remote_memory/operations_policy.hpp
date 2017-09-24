@@ -24,9 +24,10 @@
     #include "linux/read_memory.hpp"
     #include "linux/write_memory.hpp"
 #elif defined(__APPLE__)
-    #include "process_handle/include/process_handle.hpp"
+    #include "utils.hpp"
     #include "osx/read_memory.hpp"
     #include "osx/write_memory.hpp"
+    #include "process_handle/include/process_handle.hpp"
 #else
     #error "unknown platform"
 #endif

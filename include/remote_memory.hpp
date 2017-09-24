@@ -24,14 +24,14 @@ namespace remote {
     template<class OperationsPolicy>
     struct basic_memory : public OperationsPolicy {
         template<class... Args>
-        explicit basic_memory(Args&& ... args)
+        explicit basic_memory(Args&& ... args) noexcept(std::is_nothrow_constructible<OperationsPolicy, Args...>::value)
                 : OperationsPolicy(std::forward<Args>(args)...) {};
 
-        basic_memory(const basic_memory&) = default;
-        basic_memory& operator=(const basic_memory&) = default;
+        basic_memory(const basic_memory&) noexcept(std::is_nothrow_copy_constructible<OperationsPolicy>::value)= default;
+        basic_memory& operator=(const basic_memory&) noexcept(std::is_nothrow_copy_assignable<OperationsPolicy>::value) = default;
 
-        basic_memory(basic_memory&&) = default;
-        basic_memory& operator=(basic_memory&&) = default;
+        basic_memory(basic_memory&&) noexcept(std::is_nothrow_move_constructible<OperationsPolicy>::value) = default;
+        basic_memory& operator=(basic_memory&&) noexcept(std::is_nothrow_move_assignable<OperationsPolicy>::value) = default;
 
         /// \brief Reads the memory at range [address; address + size] into given buffer.
         /// \param address The address in the target process to read from.
@@ -129,7 +129,7 @@ namespace remote {
         {
             jm::detail::as_uintptr_t<sizeof(Ptr)> next;
             read(base, next);
-            return next + offset;
+            return read<Ptr>(next + offset);
         };
     };
 

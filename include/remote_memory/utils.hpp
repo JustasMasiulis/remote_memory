@@ -62,7 +62,6 @@ namespace jm { namespace detail {
 
 #endif
 
-
     template<typename Px, typename Py>
     inline constexpr Px pointer_cast(Py ptr) noexcept(!checked_pointers)
     {
