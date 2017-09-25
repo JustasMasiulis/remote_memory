@@ -37,8 +37,13 @@ namespace remote {
                                         , jm::detail::pointer_cast<void*>(address)
                                         , buffer
                                         , size
-                                        , nullptr))
-            detail::throw_last_error("WriteProcessMemory() failed");
+                                        , nullptr)) {
+            const auto code = static_cast<int>(jm::detail::GetLastError());
+            if (code == detail::ERROR_PARTIAL_COPY_)
+                throw std::range_error("ReadProcessMemory() read less than requested");
+            else
+                detail::throw_error(code, "ReadProcessMemory() failed");
+        }
     }
 
     /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
@@ -56,8 +61,13 @@ namespace remote {
                                         , jm::detail::pointer_cast<void*>(address)
                                         , buffer
                                         , size
-                                        , nullptr))
-            ec = detail::get_last_error();
+                                        , nullptr)) {
+            const auto code = static_cast<int>(jm::detail::GetLastError());
+            if (code == detail::ERROR_PARTIAL_COPY_)
+                ec = std::make_error_code(std::errc::result_out_of_range);
+            else
+                ec = std::error_code(code, std::system_category());
+        }
     }
 
 } // namespace remote

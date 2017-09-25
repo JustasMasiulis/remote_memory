@@ -37,6 +37,8 @@ namespace remote { namespace detail {
     extern "C" __declspec(dllimport) int __stdcall
     WriteProcessMemory(void* process_handle, void* base_address, const void* buffer, SIZE_T_ size, SIZE_T_* bytes_read);
 
+    static constexpr int ERROR_PARTIAL_COPY_ = 299;
+
 }} // namespace remote::detail
 
 #endif // include guard

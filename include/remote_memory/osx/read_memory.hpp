@@ -48,6 +48,8 @@ namespace remote {
                                                           , &read);
         if (kr != KERN_SUCCESS)
             throw std::system_error(std::error_code(kr, std::system_category()), "mach_vm_read_overwrite() failed");
+        else if(read != size)
+            throw std::range_error("mach_vm_read_overwrite() read less than requested");
     };
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
@@ -68,6 +70,8 @@ namespace remote {
                                                           , &read);
         if (kr != KERN_SUCCESS)
             ec = std::error_code(kr, std::system_category());
+        else if (read != size)
+            ec = std::make_error_code(std::errc::result_out_of_range);
     };
 
 } // namespace remote
