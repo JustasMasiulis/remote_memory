@@ -19,6 +19,18 @@
 
 #include "remote_memory/operations_policy.hpp"
 
+#ifndef REMOTE_MEMORY_UNSAFE_READS
+    #include <memory>
+#endif
+
+#ifndef REMOTE_MEMORY_DISABLE_TRIVIAL_COPY_CHECKS
+    #define REMOTE_MEMORY_TRIVIAL_COPY_CHECK static_assert(std::is_trivially_copyable<T>::value, \
+                                                           "the type must be trivially copyable for a safe read or write to occur" \
+                                                           "to disable this warning define REMOTE_MEMORY_DISABLE_TRIVIAL_COPY_CHECKS");
+#else
+    #define REMOTE_MEMORY_TRIVIAL_COPY_CHECK
+#endif
+
 namespace remote {
 
     template<class OperationsPolicy>
@@ -27,11 +39,14 @@ namespace remote {
         explicit basic_memory(Args&& ... args) noexcept(std::is_nothrow_constructible<OperationsPolicy, Args...>::value)
                 : OperationsPolicy(std::forward<Args>(args)...) {};
 
-        basic_memory(const basic_memory&) noexcept(std::is_nothrow_copy_constructible<OperationsPolicy>::value)= default;
-        basic_memory& operator=(const basic_memory&) noexcept(std::is_nothrow_copy_assignable<OperationsPolicy>::value) = default;
+        basic_memory(
+                const basic_memory&) noexcept(std::is_nothrow_copy_constructible<OperationsPolicy>::value) = default;
+        basic_memory&
+        operator=(const basic_memory&) noexcept(std::is_nothrow_copy_assignable<OperationsPolicy>::value) = default;
 
         basic_memory(basic_memory&&) noexcept(std::is_nothrow_move_constructible<OperationsPolicy>::value) = default;
-        basic_memory& operator=(basic_memory&&) noexcept(std::is_nothrow_move_assignable<OperationsPolicy>::value) = default;
+        basic_memory&
+        operator=(basic_memory&&) noexcept(std::is_nothrow_move_assignable<OperationsPolicy>::value) = default;
 
         /// \brief Reads the memory at range [address; address + size] into given buffer.
         /// \param address The address in the target process to read from.
@@ -40,12 +55,28 @@ namespace remote {
         template<class T, class Address, class Size>
         void read(Address address, T* buffer, Size size) const
         {
-            OperationsPolicy::read(address, buffer, size);
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
+            // if the read fails we don't want to leave the object in an invalid state
+#ifndef REMOTE_MEMORY_UNSAFE_READS
+            auto temp = std::make_unique<std::uint8_t[]>(size);
+            OperationsPolicy::read(address, temp.get(), sizeof(T));
+            std::memcpy(buffer, temp.get(), sizeof(T));
+#else
+            OperationsPolicy::read(address, temp.get(), sizeof(T));
+#endif
         }
         template<class T, class Address, class Size>
-        void read(Address address, T* buffer, Size size, std::error_code& ec) const noexcept
+        void read(Address address, T* buffer, Size size, std::error_code& ec) const
         {
-            OperationsPolicy::read(address, buffer, size, ec);
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
+#ifndef REMOTE_MEMORY_UNSAFE_READS
+            auto temp = std::make_unique<std::uint8_t[]>(size);
+            OperationsPolicy::read(address, temp.get(), sizeof(T), ec);
+            if (!ec)
+                std::memcpy(buffer, temp.get(), sizeof(T));
+#else
+            OperationsPolicy::read(address, temp.get(), sizeof(T), ec);
+#endif
         }
 
         /// \brief Reads the memory at range [address; address + sizeof(T)] into given buffer.
@@ -55,12 +86,27 @@ namespace remote {
         template<class T, class Address>
         void read(Address address, T& buffer) const
         {
-            OperationsPolicy::read(address, ::std::addressof(buffer), sizeof(T));
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
+#ifndef REMOTE_MEMORY_UNSAFE_READS
+            std::uint8_t temp[sizeof(T)];
+            OperationsPolicy::read(address, &temp, sizeof(T));
+            std::memcpy(std::addressof(buffer), temp, sizeof(T));
+#else
+            OperationsPolicy::read(address, &temp, sizeof(T));
+#endif
         }
         template<class T, class Address>
         void read(Address address, T& buffer, std::error_code& ec) const noexcept
         {
-            OperationsPolicy::read(address, ::std::addressof(buffer), sizeof(T), ec);
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
+#ifndef REMOTE_MEMORY_UNSAFE_READS
+            std::uint8_t temp[sizeof(T)];
+            OperationsPolicy::read(address, &temp, sizeof(T), ec);
+            if (!ec)
+                std::memcpy(std::addressof(buffer), temp, sizeof(T));
+#else
+            OperationsPolicy::read(address, &temp, sizeof(T), ec);
+#endif
         }
 
         /// \brief Reads the memory at range [address; address + sizeof(T)] and returns it as requested type.
@@ -69,6 +115,7 @@ namespace remote {
         template<class T, class Address>
         T read(Address address) const
         {
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type storage;
             OperationsPolicy::read(address, &storage, sizeof(T));
             return *static_cast<T*>(static_cast<void*>(&storage));
@@ -76,8 +123,12 @@ namespace remote {
         template<class T, class Address>
         T read(Address address, std::error_code& ec) const noexcept
         {
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type storage;
             OperationsPolicy::read(address, &storage, sizeof(T), ec);
+            if (ec)
+                return T{};
+
             return *static_cast<T*>(static_cast<void*>(&storage));
         }
 
@@ -88,11 +139,13 @@ namespace remote {
         template<class T, class Address, class Size>
         void write(Address address, const T* buffer, Size size) const
         {
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, buffer, size);
         }
         template<class T, class Address, class Size>
         void write(Address address, const T* buffer, Size size, std::error_code& ec) const noexcept
         {
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, buffer, size, ec);
         }
 
@@ -103,11 +156,13 @@ namespace remote {
         template<class T, class Address>
         void write(Address address, const T& buffer) const
         {
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, std::addressof(buffer), sizeof(T));
         }
         template<class T, class Address>
         void write(Address address, const T& buffer, std::error_code& ec) const noexcept
         {
+            REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, std::addressof(buffer), sizeof(T), ec);
         }
 
