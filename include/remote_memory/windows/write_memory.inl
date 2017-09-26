@@ -50,7 +50,7 @@ namespace remote {
                                         , buffer
                                         , size
                                         , nullptr)) {
-            const auto code = static_cast<int>(jm::detail::GetLastError());
+            const auto code = static_cast<int>(detail::GetLastError());
             if (code == detail::ERROR_PARTIAL_COPY_)
                 ec = std::make_error_code(std::errc::result_out_of_range);
             else
