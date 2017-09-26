@@ -369,7 +369,6 @@ TEST_CASE("traverse_pointers_chain")
         std::uint64_t i;
         fake_data* p;
     };
-    static_assert(sizeof(fake_data) == (sizeof(void*) + sizeof(std::uint64_t)), "wat the heck why do you want to pad this struct");
 
     auto data = new fake_data(333, new fake_data(222, new fake_data(111, nullptr)));
     const auto offset = offsetof(fake_data, p);
