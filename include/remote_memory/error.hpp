@@ -27,7 +27,7 @@ namespace remote { namespace detail {
 
         inline std::error_code get_last_error() noexcept
         {
-            return std::error_code(static_cast<int>(jm::detail::GetLastError()), std::system_category());
+            return std::error_code(static_cast<int>(GetLastError()), std::system_category());
         }
     #else
         inline std::error_code get_last_error() noexcept
