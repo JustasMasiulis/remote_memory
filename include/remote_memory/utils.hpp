@@ -22,10 +22,11 @@
 
 namespace jm { namespace detail {
 
-    #if defined(REMOTE_MEMORY_NO_PTR_CHECKING)
-    constexpr static bool checked_pointers = false;
+    // on apple we don't need pointer checking because they natively take 64 bit integers
+    #if defined(REMOTE_MEMORY_NO_PTR_CHECKING) || defined(__APPLE__)
+        constexpr static bool checked_pointers = false;
     #else
-    constexpr static bool checked_pointers = true;
+        constexpr static bool checked_pointers = true;
     #endif
 
     template<std::size_t S>

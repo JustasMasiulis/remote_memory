@@ -17,20 +17,8 @@
 #ifndef REMOTE_MEMORY_OPERATIONS_POLICY_HPP
 #define REMOTE_MEMORY_OPERATIONS_POLICY_HPP
 
-#if defined(_WIN32)
-    #include "windows/read_memory.hpp"
-    #include "windows/write_memory.hpp"
-#elif defined(__linux__)
-    #include "linux/read_memory.hpp"
-    #include "linux/write_memory.hpp"
-#elif defined(__APPLE__)
-    #include "utils.hpp"
-    #include "osx/read_memory.hpp"
-    #include "osx/write_memory.hpp"
-    #include "process_handle/include/process_handle.hpp"
-#else
-    #error "unknown platform"
-#endif
+#include "read_memory.hpp"
+#include "write_memory.hpp"
 
 namespace remote {
 

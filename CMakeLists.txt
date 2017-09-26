@@ -12,12 +12,12 @@ set(detail_header_files
 set(header_files
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/operations_policy.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/read_memory.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/write_memory.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/read_memory.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/write_memory.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/read_memory.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/write_memory.hpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/read_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/write_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/read_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/write_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/read_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/write_memory.inl)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 add_library(remote_memory INTERFACE)

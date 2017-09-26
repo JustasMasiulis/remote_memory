@@ -14,24 +14,18 @@
 * limitations under the License.
 */
 
-#ifndef REMOTE_MEMORY_WRITE_MEMORY_HPP
-#define REMOTE_MEMORY_WRITE_MEMORY_HPP
+#ifndef REMOTE_MEMORY_WRITE_MEMORY_INL
+#define REMOTE_MEMORY_WRITE_MEMORY_INL
 
+#include "../write_memory.hpp"
+#include "definitions.hpp"
 #include "../error.hpp"
 #include "../utils.hpp"
-#include "definitions.hpp"
 
 namespace remote {
 
-    /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
-    /// \param handle The handle to remote process.
-    /// \param address The address of the memory region to which the data will be written into.
-    /// \param buffer The buffer whose data will be written into remote memory.
-    /// \param size The size of memory region to overwrite.
-    /// \throw Throws an std::system_error on failure or std::overflow_error
-    ///        if address is out of native address type range.
     template<typename T, class Address, class Size>
-    inline void write_memory(const void* handle, Address address, const T* buffer, Size size)
+    inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size)
     {
         if (!detail::WriteProcessMemory(const_cast<void*>(handle)
                                         , jm::detail::pointer_cast<void*>(address)
@@ -46,15 +40,9 @@ namespace remote {
         }
     }
 
-    /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
-    /// \param handle The handle to remote process.
-    /// \param address The address of the memory region to which the data will be written into.
-    /// \param buffer The buffer whose data will be written into remote memory.
-    /// \param size The size of memory region to overwrite.
-    /// \param ec The error code that will be set in case of failure.
-    /// \throw May throw an std::overflow_error if the address is out of native address type range.
+
     template<class T, class Address, class Size>
-    inline void write_memory(const void* handle, Address address, const T* buffer, Size size
+    inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         if (!detail::WriteProcessMemory(const_cast<void*>(handle)

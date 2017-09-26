@@ -17,8 +17,6 @@
 #ifndef REMOTE_MEMORY_DEFINITIONS_HPP
 #define REMOTE_MEMORY_DEFINITIONS_HPP
 
-#include "../process_handle/include/process_handle.hpp"
-
 namespace remote { namespace detail {
 
 #ifdef _WIN64

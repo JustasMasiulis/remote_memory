@@ -17,9 +17,8 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_HPP
 #define REMOTE_MEMORY_READ_MEMORY_HPP
 
-#include "../error.hpp"
-#include "../utils.hpp"
-#include <sys/uio.h>
+#include "process_handle/include/process_handle.hpp"
+#include "utils.hpp"
 
 namespace remote {
 
@@ -31,18 +30,7 @@ namespace remote {
     /// \throw Throws an std::system_error on failure, std::range_error on partial read
     ///        or std::overflow_error if address is bigger than what the native function supports.
     template<class T, class Address, class Size>
-    inline void read_memory(int handle, Address address, T* buffer, Size size)
-    {
-        const ::iovec local  = {buffer, size};
-        const ::iovec target = {jm::detail::pointer_cast<void*>(address), size};
-
-        const auto read = ::process_vm_readv(handle, &local, 1, &target, 1, 0);
-
-        if (read == -1)
-            detail::throw_last_error("process_vm_readv() failed");
-        else if (read < size)
-            throw std::range_error("process_vm_readv() read less than requested");
-    };
+    void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size);
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
     /// \param handle The handle to remote process.
@@ -53,20 +41,17 @@ namespace remote {
     ///           but performs only a partial read error code is set to result_out_of_range.
     /// \throw May throw an std::overflow_error if the address is out of native address type range.
     template<class T, class Address, class Size>
-    inline void read_memory(int handle, Address address, T* buffer, Size size
-                            , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
-    {
-        const ::iovec local  = {buffer, size};
-        const ::iovec target = {jm::detail::pointer_cast<void*>(address), size};
-
-        const auto read = ::process_vm_readv(handle, &local, 1, &target, 1, 0);
-
-        if (read == -1)
-            ec = detail::get_last_error();
-        else if (read < size)
-            ec = std::make_error_code(std::errc::result_out_of_range);
-    };
+    void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size
+                     , std::error_code& ec) noexcept(!jm::detail::checked_pointers);
 
 } // namespace remote
+
+#if defined(_WIN32)
+    #include "windows/read_memory.inl"
+#elif defined(__linux__)
+    #include "linux/read_memory.inl"
+#else
+    #include "osx/read_memory.inl"
+#endif
 
 #endif // include guard
