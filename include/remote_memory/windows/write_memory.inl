@@ -32,7 +32,7 @@ namespace remote {
                                         , buffer
                                         , size
                                         , nullptr)) {
-            const auto code = static_cast<int>(jm::detail::GetLastError());
+            const auto code = static_cast<int>(detail::GetLastError());
             if (code == detail::ERROR_PARTIAL_COPY_)
                 throw std::range_error("ReadProcessMemory() read less than requested");
             else
