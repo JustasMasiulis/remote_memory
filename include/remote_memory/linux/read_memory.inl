@@ -40,7 +40,7 @@ namespace remote {
 
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t, Address address, T* buffer, Size size
+    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size
                             , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         const ::iovec local  = {buffer, size};

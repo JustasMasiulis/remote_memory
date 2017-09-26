@@ -21,16 +21,27 @@
 
 namespace remote {
 
-    /// \brief Overwrites the memory range [address; address + size] with the contents of given buffer.
+    /// \brief Overwrites remote memory range [address; address + size] into given buffer.
     /// \param handle The handle to remote process.
-    /// \param address The address of the memory region to which the data will be written into.
-    /// \param buffer The buffer whose data will be written into remote memory.
-    /// \param size The size of memory region to overwrite.
-    /// \throw Throws an std::system_error on failure, std::range_error on partial write
+    /// \param address The address of the beginning of the remote memory range.
+    /// \param buffer The buffer whose contents will be written.
+    /// \param size The size of the buffer.
+    /// \throw Throws an std::system_error on failure, std::range_error on partial copy
     ///        or std::overflow_error if address is bigger than what the native function supports.
+    /// \note This function is not safe - it does not check the type. Prefer using functions inside remote::memory.
     template<typename T, class Address, class Size>
     inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size);
 
+    /// \brief Overwrites remote memory range [address; address + size] into given buffer.
+    /// \param handle The handle to remote process.
+    /// \param address The address of the beginning of the remote memory range.
+    /// \param buffer The buffer whose contents will be written.
+    /// \param size The size of the buffer.
+    /// \param ec The error code that will be set in case of failure.
+    ///           If the error is partial copy the error code will be set to result_out_of_range.
+    /// \throw May throw an std::overflow error if the pointer exceeds the range of what the native function supports.
+    ///        (does not throw on OSX)
+    /// \note This function is not safe - it does not check the type. Prefer using functions inside remote::memory.
     template<class T, class Address, class Size>
     inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers);
