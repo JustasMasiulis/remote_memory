@@ -22,15 +22,18 @@
 namespace remote { namespace detail {
 
     #if defined(_WIN32)
-    inline std::error_code get_last_error() noexcept
-    {
-        return std::error_code(static_cast<int>(jm::detail::GetLastError()), std::system_category());
-    }
+
+        extern "C" __declspec(dllimport) unsigned long __stdcall GetLastError();
+
+        inline std::error_code get_last_error() noexcept
+        {
+            return std::error_code(static_cast<int>(jm::detail::GetLastError()), std::system_category());
+        }
     #else
-    inline std::error_code get_last_error() noexcept
-    {
-        return std::error_code(errno, std::system_category());
-    }
+        inline std::error_code get_last_error() noexcept
+        {
+            return std::error_code(errno, std::system_category());
+        }
     #endif
 
     inline void throw_last_error(const char* msg)
