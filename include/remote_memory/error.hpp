@@ -36,11 +36,13 @@ namespace remote { namespace detail {
         }
     #endif
 
+    [[noreturn]]
     inline void throw_last_error(const char* msg)
     {
         throw std::system_error(get_last_error(), msg);
     }
 
+    [[noreturn]]
     inline void throw_error(int code, const char* msg)
     {
         throw std::system_error(std::error_code(code, std::system_category()), msg);

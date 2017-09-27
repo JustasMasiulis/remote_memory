@@ -39,19 +39,9 @@ namespace remote {
         explicit basic_memory(Args&& ... args) noexcept(std::is_nothrow_constructible<OperationsPolicy, Args...>::value)
                 : OperationsPolicy(std::forward<Args>(args)...) {};
 
-        basic_memory(
-                const basic_memory&) noexcept(std::is_nothrow_copy_constructible<OperationsPolicy>::value) = default;
-        basic_memory&
-        operator=(const basic_memory&) noexcept(std::is_nothrow_copy_assignable<OperationsPolicy>::value) = default;
-
-        basic_memory(basic_memory&&) noexcept(std::is_nothrow_move_constructible<OperationsPolicy>::value) = default;
-        basic_memory&
-        operator=(basic_memory&&) noexcept(std::is_nothrow_move_assignable<OperationsPolicy>::value) = default;
-
-        /// \brief Reads the memory at range [address; address + size] into given buffer.
-        /// \param address The address in the target process to read from.
-        /// \param buffer The buffer into which the memory at range [address; address + size] will be copied to.
-        /// \param size The size of memory region to read.
+        /// \brief Refer to remote::read_memory.
+        ///        The parameters have the same meaning, but does not require a process handle.
+        /// \throw Strong exception safety guarantee - if the function throws the buffer state is left unchanged.
         template<class T, class Address, class Size>
         void read(Address address, T* buffer, Size size) const
         {
@@ -79,10 +69,10 @@ namespace remote {
 #endif
         }
 
-        /// \brief Reads the memory at range [address; address + sizeof(T)] into given buffer.
-        /// \param address The address in the target process to read from.
-        /// \param buffer The buffer into which the memory will be copied to.
-        /// \tparam T The type of buffer to be used.
+        /// \brief Refer to remote::read_memory.
+        ///        The parameters have the same meaning, but does not require a process handle.
+        ///        The size will be sizeof(T).
+        /// \throw Strong exception safety guarantee - if the function throws the buffer state is left unchanged.
         template<class T, class Address>
         void read(Address address, T& buffer) const
         {
@@ -109,9 +99,8 @@ namespace remote {
 #endif
         }
 
-        /// \brief Reads the memory at range [address; address + sizeof(T)] and returns it as requested type.
-        /// \param address The address in the target process to read from.
-        /// \tparam T The type of buffer to be used for information to be read to.
+        /// \brief Refer to remote::read_memory which is by default used internally.
+        ///        The memory will be copied into a buffer of type T.
         template<class T, class Address>
         T read(Address address) const
         {
@@ -120,6 +109,9 @@ namespace remote {
             OperationsPolicy::read(address, &storage, sizeof(T));
             return *static_cast<T*>(static_cast<void*>(&storage));
         }
+        /// \brief Refer to remote::read_memory which is by default used internally.
+        ///        The memory will be copied into a buffer of type T. If the function fails
+        ///        you will be returned a default constructed.
         template<class T, class Address>
         T read(Address address, std::error_code& ec) const noexcept
         {
@@ -132,10 +124,7 @@ namespace remote {
             return *static_cast<T*>(static_cast<void*>(&storage));
         }
 
-        /// \brief Overwrites the memory at range [address; address + size] with the contents of buffer.
-        /// \param address The address in the target process to write to.
-        /// \param buffer The buffer of memory to be written.
-        /// \param size The size of buffer.
+        /// \brief refer to remote::write_memory.
         template<class T, class Address, class Size>
         void write(Address address, const T* buffer, Size size) const
         {
@@ -149,10 +138,7 @@ namespace remote {
             OperationsPolicy::write(address, buffer, size, ec);
         }
 
-        /// \brief Overwrites the memory at range [address; address + sizeof(T)] with the contents of buffer.
-        /// \param address The address in the target process to write to.
-        /// \param buffer The buffer of memory to be written.
-        /// \tparam T The type of buffer which will be written into target memory.
+        /// \brief refer to remote::write_memory. Size will be sizeof(T).
         template<class T, class Address>
         void write(Address address, const T& buffer) const
         {
@@ -172,6 +158,7 @@ namespace remote {
         /// \param args The offsets that will be recursively added.
         /// \code traverse_pointers_chain(base_address, 0x20, 0x8)
         ///       // same as *(*(*(base_address) + 0x20) + 0x8)
+        /// \throw Throws an exception on failure. Refer to remote::read_memory.
         template<class Ptr = std::uintptr_t, class Base, class Offset, class... Args>
         Ptr traverse_pointers_chain(Base base, Offset offset, Args... args)
         {
