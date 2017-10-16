@@ -73,27 +73,28 @@ namespace remote {
         ///        The parameters have the same meaning, but does not require a process handle.
         ///        The size will be sizeof(T).
         /// \throw Strong exception safety guarantee - if the function throws the buffer state is left unchanged.
+        ///        This guarantee does not apply if unsafe reads are enabled
         template<class T, class Address>
         void read(Address address, T& buffer) const
         {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
 #ifndef REMOTE_MEMORY_UNSAFE_READS
-            std::uint8_t temp[sizeof(T)];
-            OperationsPolicy::read(address, &temp, sizeof(T));
-            std::memcpy(std::addressof(buffer), temp, sizeof(T));
+            typename std::aligned_storage<sizeof(T), alignof(T)>::type storage;
+            OperationsPolicy::read(address, &storage, sizeof(T));
+            std::memcpy(std::addressof(buffer), &storage, sizeof(T));
 #else
             OperationsPolicy::read(address, &temp, sizeof(T));
 #endif
         }
         template<class T, class Address>
-        void read(Address address, T& buffer, std::error_code& ec) const noexcept
+        void read(Address address, T& buffer, std::error_code& ec) const noexcept(!jm::detail::checked_pointers)
         {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
 #ifndef REMOTE_MEMORY_UNSAFE_READS
-            std::uint8_t temp[sizeof(T)];
-            OperationsPolicy::read(address, &temp, sizeof(T), ec);
+            typename std::aligned_storage<sizeof(T), alignof(T)>::type storage;
+            OperationsPolicy::read(address, &storage, sizeof(T), ec);
             if (!ec)
-                std::memcpy(std::addressof(buffer), temp, sizeof(T));
+                std::memcpy(::std::addressof(buffer), &storage, sizeof(T));
 #else
             OperationsPolicy::read(address, &temp, sizeof(T), ec);
 #endif
@@ -105,23 +106,24 @@ namespace remote {
         T read(Address address) const
         {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
-            typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type storage;
-            OperationsPolicy::read(address, &storage, sizeof(T));
-            return *static_cast<T*>(static_cast<void*>(&storage));
+            T storage;
+            OperationsPolicy::read(address, ::std::addressof(storage), sizeof(T));
+            return storage;
         }
         /// \brief Refer to remote::read_memory which is by default used internally.
         ///        The memory will be copied into a buffer of type T. If the function fails
         ///        you will be returned a default constructed.
         template<class T, class Address>
-        T read(Address address, std::error_code& ec) const noexcept
+        T read(Address address, std::error_code& ec) const
         {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
-            typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type storage;
-            OperationsPolicy::read(address, &storage, sizeof(T), ec);
+            // wanted to use aligned_storage here but that would be UB
+            T storage;
+            OperationsPolicy::read(address, ::std::addressof(storage), sizeof(T), ec);
             if (ec)
                 return T{};
 
-            return *static_cast<T*>(static_cast<void*>(&storage));
+            return storage;
         }
 
         /// \brief refer to remote::write_memory.
@@ -132,7 +134,7 @@ namespace remote {
             OperationsPolicy::write(address, buffer, size);
         }
         template<class T, class Address, class Size>
-        void write(Address address, const T* buffer, Size size, std::error_code& ec) const noexcept
+        void write(Address address, const T* buffer, Size size, std::error_code& ec) const noexcept(!jm::detail::checked_pointers)
         {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, buffer, size, ec);
@@ -145,8 +147,10 @@ namespace remote {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, std::addressof(buffer), sizeof(T));
         }
+        /// \brief error_code version of write.
+        /// \throw May throw an std::overflow_error if address checking is enabled.
         template<class T, class Address>
-        void write(Address address, const T& buffer, std::error_code& ec) const noexcept
+        void write(Address address, const T& buffer, std::error_code& ec) const noexcept(!jm::detail::checked_pointers)
         {
             REMOTE_MEMORY_TRIVIAL_COPY_CHECK
             OperationsPolicy::write(address, std::addressof(buffer), sizeof(T), ec);
@@ -166,6 +170,8 @@ namespace remote {
             read(base, next);
             return traverse_pointers_chain(next + offset, args...);
         };
+        /// \brief error_code version of traverse_pointers_chain.
+        /// \throw May throw an std::overflow_error if address checking is enabled.
         template<class Ptr = std::uintptr_t, class Base, class Offset>
         Ptr traverse_pointers_chain(Base base, Offset offset)
         {
