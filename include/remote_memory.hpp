@@ -35,8 +35,12 @@ namespace remote {
 
     template<class OperationsPolicy>
     struct basic_memory : public OperationsPolicy {
-        template<class... Args>
-        explicit basic_memory(Args&& ... args) noexcept(std::is_nothrow_constructible<OperationsPolicy, Args...>::value)
+        explicit basic_memory() = default;
+
+        template<class... Args, class = typename std::enable_if<!std::is_same<basic_memory
+                                        , typename std::decay<Args...>::type>::value>::type>
+        explicit basic_memory(Args&& ... args)
+        noexcept(std::is_nothrow_constructible<OperationsPolicy, Args...>::value)
                 : OperationsPolicy(std::forward<Args>(args)...) {};
 
         /// \brief Refer to remote::read_memory.
