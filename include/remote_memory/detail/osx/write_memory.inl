@@ -17,7 +17,7 @@
 #ifndef REMOTE_MEMORY_WRITE_MEMORY_INL
 #define REMOTE_MEMORY_WRITE_MEMORY_INL
 
-#include "../write_memory.hpp"
+#include "../../write_memory.hpp"
 #include <mach/mach_types.h>
 #include "../error.hpp"
 
@@ -31,7 +31,7 @@ namespace remote {
     }
 
     template<typename T, class Address, class Size>
-    inline void write_memory(const ::mach_port_t handle, Address address, const T* buffer, Size size)
+    inline void write_memory(const native_handle_t handle, Address address, const T* buffer, Size size)
     {
         const auto kr = detail::mach_vm_write(handle
                                               , (::mach_vm_address_t)(address)
@@ -43,7 +43,7 @@ namespace remote {
 
 
     template<class T, class Address, class Size>
-    inline void write_memory(const ::mach_port_t handle, Address address, const T* buffer, Size size
+    inline void write_memory(const native_handle_t handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         const auto kr = detail::mach_vm_write(handle

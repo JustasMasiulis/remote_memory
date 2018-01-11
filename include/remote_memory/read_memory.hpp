@@ -17,8 +17,8 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_HPP
 #define REMOTE_MEMORY_READ_MEMORY_HPP
 
-#include "process_handle/include/process_handle.hpp"
-#include "utils.hpp"
+#include "detail/utils.hpp"
+#include "native_types.hpp"
 
 namespace remote {
 
@@ -32,7 +32,7 @@ namespace remote {
     /// \note This function is not safe - it does not check the type and may leave it in an invalid state
     ///       after a partial copy. Prefer using functions inside remote::memory.
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size);
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size);
 
     /// \brief Reads remote memory range [address; address + size] into given buffer.
     /// \param handle The handle to remote process.
@@ -46,17 +46,17 @@ namespace remote {
     /// \note This function is not safe - it does not check the type and may leave it in an invalid state
     ///       after a partial copy. Prefer using functions inside remote::memory.
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size
                      , std::error_code& ec) noexcept(!jm::detail::checked_pointers);
 
 } // namespace remote
 
 #if defined(_WIN32)
-    #include "windows/read_memory.inl"
+    #include "detail/windows/read_memory.inl"
 #elif defined(__linux__)
-    #include "linux/read_memory.inl"
+    #include "detail/linux/read_memory.inl"
 #else
-    #include "osx/read_memory.inl"
+    #include "detail/osx/read_memory.inl"
 #endif
 
 #endif // include guard

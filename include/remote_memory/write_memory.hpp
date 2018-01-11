@@ -17,7 +17,8 @@
 #ifndef REMOTE_MEMORY_WRITE_MEMORY_HPP
 #define REMOTE_MEMORY_WRITE_MEMORY_HPP
 
-#include "process_handle/include/process_handle.hpp"
+#include "detail/utils.hpp"
+#include "native_types.hpp"
 
 namespace remote {
 
@@ -30,7 +31,7 @@ namespace remote {
     ///        or std::overflow_error if address is bigger than what the native function supports.
     /// \note This function is not safe - it does not check the type. Prefer using functions inside remote::memory.
     template<typename T, class Address, class Size>
-    inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size);
+    inline void write_memory(const native_handle_t handle, Address address, const T* buffer, Size size);
 
     /// \brief Overwrites remote memory range [address; address + size] into given buffer.
     /// \param handle The handle to remote process.
@@ -43,17 +44,17 @@ namespace remote {
     ///        (does not throw on OSX)
     /// \note This function is not safe - it does not check the type. Prefer using functions inside remote::memory.
     template<class T, class Address, class Size>
-    inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size
+    inline void write_memory(const native_handle_t handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers);
 
 } // namespace remote
 
 #if defined(_WIN32)
-    #include "windows/write_memory.inl"
+    #include "detail/windows/write_memory.inl"
 #elif defined(__linux__)
-    #include "linux/write_memory.inl"
+    #include "detail/linux/write_memory.inl"
 #else
-    #include "osx/write_memory.inl"
+    #include "detail/osx/write_memory.inl"
 #endif
 
 #endif // include guard

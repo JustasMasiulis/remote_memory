@@ -17,7 +17,7 @@
 #ifndef REMOTE_MEMORY_ERROR_HPP
 #define REMOTE_MEMORY_ERROR_HPP
 
-#include "process_handle/include/process_handle.hpp"
+#include <system_error>
 
 namespace remote { namespace detail {
 

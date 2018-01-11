@@ -17,7 +17,7 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_INL
 #define REMOTE_MEMORY_READ_MEMORY_INL
 
-#include "../read_memory.hpp"
+#include "../../read_memory.hpp"
 #include <mach/mach_types.h>
 #include "../error.hpp"
 
@@ -32,7 +32,7 @@ namespace remote {
     }
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size)
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size)
     {
         ::mach_vm_size_t read;
         const auto       kr = detail::mach_vm_read_overwrite(handle
@@ -47,7 +47,7 @@ namespace remote {
     };
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size
                             , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         ::mach_vm_size_t read;

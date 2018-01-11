@@ -17,15 +17,14 @@
 #ifndef REMOTE_MEMORY_WRITE_MEMORY_INL
 #define REMOTE_MEMORY_WRITE_MEMORY_INL
 
-#include "../write_memory.hpp"
+#include "../../write_memory.hpp"
 #include "definitions.hpp"
 #include "../error.hpp"
-#include "../utils.hpp"
 
 namespace remote {
 
     template<typename T, class Address, class Size>
-    inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size)
+    inline void write_memory(const native_handle_t handle, Address address, const T* buffer, Size size)
     {
         if (!detail::WriteProcessMemory(const_cast<void*>(handle)
                                         , jm::detail::pointer_cast<void*>(address)
@@ -42,7 +41,7 @@ namespace remote {
 
 
     template<class T, class Address, class Size>
-    inline void write_memory(const jm::native_handle_t handle, Address address, const T* buffer, Size size
+    inline void write_memory(const native_handle_t handle, Address address, const T* buffer, Size size
                              , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         if (!detail::WriteProcessMemory(const_cast<void*>(handle)

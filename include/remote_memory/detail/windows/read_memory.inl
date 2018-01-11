@@ -17,15 +17,14 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_INL
 #define REMOTE_MEMORY_READ_MEMORY_INL
 
-#include "../read_memory.hpp"
+#include "../../read_memory.hpp"
 #include "definitions.hpp"
 #include "../error.hpp"
-#include "../utils.hpp"
 
 namespace remote {
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size)
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size)
     {
         // the handle won't get modified so we can take it as const and then cast it away
         if (!detail::ReadProcessMemory(const_cast<void*>(handle)
@@ -43,7 +42,7 @@ namespace remote {
 
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size
                             , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         if (!detail::ReadProcessMemory(const_cast<void*>(handle)

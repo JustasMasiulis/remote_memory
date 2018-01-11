@@ -17,15 +17,14 @@
 #ifndef REMOTE_MEMORY_READ_MEMORY_INL
 #define REMOTE_MEMORY_READ_MEMORY_INL
 
-#include "../read_memory.hpp"
+#include "../../read_memory.hpp"
 #include "../error.hpp"
-#include "../utils.hpp"
 #include <sys/uio.h>
 
 namespace remote {
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size)
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size)
     {
         const ::iovec local  = {buffer, size};
         const ::iovec target = {jm::detail::pointer_cast<void*>(address), size};
@@ -40,7 +39,7 @@ namespace remote {
 
 
     template<class T, class Address, class Size>
-    inline void read_memory(const jm::native_handle_t handle, Address address, T* buffer, Size size
+    inline void read_memory(const native_handle_t handle, Address address, T* buffer, Size size
                             , std::error_code& ec) noexcept(!jm::detail::checked_pointers)
     {
         const ::iovec local  = {buffer, size};
