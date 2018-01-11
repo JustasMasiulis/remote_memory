@@ -5,15 +5,18 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(detail_header_files
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/error.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/utils.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/definitions.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/read_memory.inl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/windows/write_memory.inl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/read_memory.inl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/linux/write_memory.inl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/read_memory.inl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/osx/write_memory.inl)
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/error.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/utils.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/windows/definitions.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/windows/read_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/windows/write_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/windows/safe_handle.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/linux/read_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/linux/write_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/linux/safe_handle.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/osx/read_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/osx/write_memory.inl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory/detail/osx/safe_handle.hpp)
 
 set(header_files
         ${CMAKE_CURRENT_SOURCE_DIR}/include/remote_memory.hpp
