@@ -69,7 +69,10 @@ namespace jm { namespace detail {
         using my_pointer_checker = pointer_checker<(sizeof(Py) > sizeof(Px))>;
         my_pointer_checker::template check<Px>(ptr);
 
-        return (Px) (ptr);
+        Px new_ptr{ 0 };
+        // memcpy will be optimized out by every major compiler
+        std::memcpy(&new_ptr, &ptr, std::min(sizeof(Px), sizeof(Py)));
+        return new_ptr;
     }
 
 }}

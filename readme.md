@@ -1,5 +1,8 @@
 # remote_memory [![Build Status](https://travis-ci.com/JustasMasiulis/remote_memory.svg?token=pq8nGGFpC3YcRv1Qh2jz&branch=master)](https://travis-ci.com/JustasMasiulis/remote_memory) [![Build status](https://ci.appveyor.com/api/projects/status/ygc8vwnowox1krjb?svg=true)](https://ci.appveyor.com/project/JustasMasiulis/remote-memory)
-A modern, easy to used library to read or write a remote processes memory that can be customized to your liking. Currently there is support for windows, linux and OSX operating systems.
+A modern, easy to used library to read or write a remote processes memory that can be customized to your liking.
+
+## supported platforms
+The library has been tested to work with OSX, windows and linux operating systems.
 
 ## usage
 By default the library uses jm::process_handle so passing it a process id or native handle is valid.
