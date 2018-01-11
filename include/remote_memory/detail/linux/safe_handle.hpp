@@ -30,7 +30,7 @@ namespace remote { namespace detail {
 
         safe_handle(pid_t pid, std::error_code&) noexcept : process_id(pid) {}
 
-        constexpr pid_t get() const noexcept { return process_id; }
+        pid_t get() const noexcept { return process_id; }
     };
 
 }} // namespace remote::detail

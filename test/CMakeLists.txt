@@ -29,4 +29,4 @@ target_link_libraries(${TEST_APP_NAME} remote_memory)
 enable_testing()
 
 #parse catch tests
-add_test(NAME ${TEST_APP_NAME} COMMAND ${TEST_APP_NAME})
+ParseAndAddCatchTests (${TEST_APP_NAME})
