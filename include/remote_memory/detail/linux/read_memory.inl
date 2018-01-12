@@ -19,6 +19,7 @@
 
 #include "../../read_memory.hpp"
 #include "../error.hpp"
+#include "../utils.hpp"
 #include <sys/uio.h>
 
 namespace remote {
@@ -33,7 +34,7 @@ namespace remote {
 
         if (read == -1)
             detail::throw_last_error("process_vm_readv() failed");
-        else if (read < size)
+        else if (jm::detail::pointer_cast<Size>(read) < size)
             throw std::range_error("process_vm_readv() read less than requested");
     };
 
@@ -49,7 +50,7 @@ namespace remote {
 
         if (read == -1)
             ec = detail::get_last_error();
-        else if (read < size)
+        else if (jm::detail::pointer_cast<Size>(read) < size)
             ec = std::make_error_code(std::errc::result_out_of_range);
     };
 

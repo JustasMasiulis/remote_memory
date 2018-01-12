@@ -22,10 +22,15 @@ matrix:
     # Linux C++14 Clang builds
     - os: linux
       compiler: clang
+      addons: &gcc6
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-6']
       env: COMPILER='clang++' BUILD_TYPE='Release'
 
     - os: linux
       compiler: clang
+      addons: *gcc6
       env: COMPILER='clang++' BUILD_TYPE='Debug'
 
     # OSX C++14 Clang Builds

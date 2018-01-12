@@ -19,6 +19,7 @@
 
 #include "../../write_memory.hpp"
 #include "../error.hpp"
+#include "../utils.hpp"
 #include <sys/uio.h>
 
 namespace remote {
@@ -33,7 +34,7 @@ namespace remote {
 
         if (written == -1)
             detail::throw_last_error("process_vm_writev() failed");
-        else if (written < size)
+        else if (jm::detail::pointer_cast<Size>(written) < size)
             throw std::range_error("process_vm_writev() wrote less than requested");
     }
 
@@ -49,7 +50,7 @@ namespace remote {
 
         if (written == -1)
             ec = detail::get_last_error();
-        else if (written < size)
+        else if (jm::detail::pointer_cast<Size>(written) < size)
             ec = std::make_error_code(std::errc::result_out_of_range);
     }
 
