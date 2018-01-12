@@ -17,6 +17,7 @@
 #ifndef REMOTE_MEMORY_WRITE_MEMORY_HPP
 #define REMOTE_MEMORY_WRITE_MEMORY_HPP
 
+#include <system_erorr>
 #include "detail/utils.hpp"
 #include "native_types.hpp"
 

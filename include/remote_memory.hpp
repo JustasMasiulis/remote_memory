@@ -24,6 +24,7 @@
 #endif
 
 #ifndef REMOTE_MEMORY_DISABLE_TRIVIAL_COPY_CHECKS
+    #include <type_traits>
     #define REMOTE_MEMORY_TRIVIAL_COPY_CHECK static_assert(std::is_trivially_copyable<T>::value, \
                                                            "the type must be trivially copyable for a safe read or write to occur" \
                                                            "to disable this warning define REMOTE_MEMORY_DISABLE_TRIVIAL_COPY_CHECKS");
