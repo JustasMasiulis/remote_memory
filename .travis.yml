@@ -53,5 +53,6 @@ before_script:
   - cmake ../ -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -Wdev
 
 script:
+  - whereis ctest
   - make -j 2
   - sudo ctest -V -j 2
