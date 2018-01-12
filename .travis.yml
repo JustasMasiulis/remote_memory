@@ -22,11 +22,11 @@ matrix:
     # Linux C++14 Clang builds
     - os: linux
       compiler: clang
-      env: COMPILER='clang++-5.0' BUILD_TYPE='Release'
+      env: COMPILER='clang++' BUILD_TYPE='Release'
 
     - os: linux
       compiler: clang
-      env: COMPILER='clang++-5.0' BUILD_TYPE='Debug'
+      env: COMPILER='clang++' BUILD_TYPE='Debug'
 
     # OSX C++14 Clang Builds
 
@@ -40,14 +40,6 @@ matrix:
       compiler: clang
       env: COMPILER='clang++' BUILD_TYPE='Release'
 
-
-install:
-  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
-  - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      which cmake || brew install cmake
-    fi
 before_script:
   - export CXX=${COMPILER}
   - cd ${TRAVIS_BUILD_DIR}
