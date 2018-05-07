@@ -30,7 +30,7 @@ namespace remote { namespace detail {
 
         safe_handle(pid_t pid)
         {
-            const auto kr = ::task_for_pid(::mach_task_self(), pid, &_handle);
+            const auto kr = ::task_for_pid(::mach_task_self(), pid, &task);
             if (kr != KERN_SUCCESS)
                 throw std::system_error(std::error_code(kr, std::system_category()),
                                         "task_for_pid() failed");
@@ -38,7 +38,7 @@ namespace remote { namespace detail {
 
         safe_handle(pid_t pid, std::error_code& ec) noexcept
         {
-            const auto kr = ::task_for_pid(::mach_task_self(), pid, &_handle);
+            const auto kr = ::task_for_pid(::mach_task_self(), pid, &task);
             if (kr != KERN_SUCCESS)
                 ec = std::error_code(kr, std::system_category());
         }
